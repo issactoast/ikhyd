@@ -1,12 +1,7 @@
----
-title: "I Know How You Drive"
-output: 
-    html_document:
-        keep_md: true
----
+I Know How You Drive
+====================
 
-
-
-## R package for telematics data analysis
+R package for telematics data analysis
+--------------------------------------
 
 This is a R package for the analysis of telematics data.

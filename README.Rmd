@@ -1,13 +1,15 @@
 ---
 title: "I Know How You Drive"
-output: 
-    html_document:
-        keep_md: true
+output:
+      md_document:
+          variant: markdown_github
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+# I Know How You Drive
 
 ## R package for telematics data analysis
 

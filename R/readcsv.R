@@ -1,22 +1,40 @@
-# option 0 : all
-# option 1 : gps
-# option 2 : accel xyz
-# option 3 : linacc xyz
-# option 4 : gyro xyz
-# option 5 : roll, pitch, yaw
-# option 6 : speed, heading
-
-#' loading the telematics trip csv file.
+#' convert time stamp into seconds
+#' 
+#' @name convert_time
+#' @param timelist time value in list consists of 3 elements;
+#' the first element is hour, the second element is min, the last one is seconds.
+#' @return seconds corresponds with the input hour
+convert_time <- function(timelist){
+    timelist <- unlist(timelist)
+    hr <- as.numeric(timelist[1]) * 3600
+    min <- as.numeric(timelist[2]) * 60
+    sec <- as.numeric(timelist[3])
+    result <- hr + min + sec
+    result
+}
+#' Loading the telematics trip csv file.
 #'
-#' get_trip function will read the csv file which records the driving trip data
+#' get_trip function will read a csv file which records the driving trip data
+#' @name get_trip
 #' @importFrom magrittr "%>%"
-get_trip <- function(data_folder = "", tripN,
+#' @param data_path a path that the trip csv file located
+#' @param data_option the variables that the user want to select from the data. \cr
+#' The following list explains the options; \cr
+#' Option 0 : all \cr
+#' Option 1 : gps \cr
+#' Option 2 : accel xyz \cr
+#' Option 3 : linacc xyz \cr
+#' Option 4 : gyro xyz \cr
+#' Option 5 : roll, pitch, yaw \cr
+#' Option 6 : speed, heading
+#' @param sync_time this arguments will be used when the recorded data has different time line with video.
+#' @export
+get_trip <- function(data_path,
                      data_option = 0,
                      sync_time = NULL){
 
-    file_path <- paste0("./data/", data_folder,"/trip", tripN, ".csv")
-    temp_data <- utils::read.csv(file_path, header = TRUE, fill = TRUE)
-
+    temp_data <- utils::read.csv(data_path, header = TRUE, fill = TRUE)
+    
     temp_time <- as.character(temp_data$Timestamp) %>% strsplit(" ") %>% unlist
     temp_time <- temp_time[seq(2, length(temp_time), by = 2)] %>% strsplit(":")
 
@@ -28,20 +46,19 @@ get_trip <- function(data_folder = "", tripN,
         sync_time <- strsplit(sync_time, ":")
         start_time <- convert_time(sync_time)
     }
-
-    if (data_option == 1) {
+    
+    if (data_option == 0){
+        data <- temp_data
+    } else if (data_option == 1) {
         # filter gps data
         data <- dplyr::select(temp_data, Timestamp, Lat, Long)
-        # data <- data[seq(10, dim(data)[1], by = 26),]
-        # data <- dplyr::distinct(data, Lat,  .keep_all = TRUE)
         convertTOmeter <- function(pointVector){
             geosphere::distm(pointVector[1:2], pointVector[3:4], fun = geosphere::distHaversine)
         }
-        tempD <- cbind.data.frame(head(data[,c(3,2)], -1),
-                                  tail(data[,c(3,2)], -1))
+        tempD <- cbind.data.frame(utils::head(data[,c(3,2)], -1),
+                                  utils::tail(data[,c(3,2)], -1))
         gps_speed <- apply(tempD, 1, convertTOmeter)
-        # data$speed <- c(gps_speed, tail(gps_speed, 1)) * 2.27
-        data$speed <- c(gps_speed, tail(gps_speed, 1)) * 2.23694
+        data$speed <- c(gps_speed, utils::tail(gps_speed, 1)) * 2.23694
         colnames(data) <- c("Timestamp", "y", "x", "speed")
     } else if (data_option == 2) {
         # filter gps data
@@ -76,9 +93,14 @@ get_trip <- function(data_folder = "", tripN,
     }
 
     data <- data %>%
-        filter(Timestamp >= start_time) %>%
-        mutate(Timestamp = Timestamp - start_time)
-    # data$Timestamp <- data$Timestamp - start_time
+        dplyr::filter(Timestamp >= start_time) %>%
+        dplyr::mutate(Timestamp = Timestamp - start_time)
     colnames(data)[1] <- "time"
     data
+}
+
+if(getRversion() >= "2.15.1") {
+    temp_data <- utils::read.csv(system.file("extdata", "sample_trip.csv", package = "ikhyd"),
+                                 header = TRUE, fill = TRUE)
+    utils::globalVariables(names(temp_data))  
 }

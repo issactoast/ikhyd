@@ -1,7 +1,8 @@
 Package: ikhyd
 Type: Package
-Title: "I Know How you Drive: Analysis Tools for Telematics Data"
+Title: "I Know How you Drive - Analysis Tools for Telematics Data"
 Version: 0.1.0
+Date: 2019-05-10
 Authors@R: c(person("Issac", "Lee", role = c("aut", "cre"),
              email = "issactoast@gmail.com"))
 Description: This is a collection of fucntions that could be used in telematics data.

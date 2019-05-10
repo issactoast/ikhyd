@@ -2,10 +2,25 @@
 % Please edit documentation in R/readcsv.R
 \name{get_trip}
 \alias{get_trip}
-\title{loading the telematics trip csv file.}
+\title{Loading the telematics trip csv file.}
 \usage{
-get_trip(data_folder = "", tripN, data_option = 0, sync_time = NULL)
+get_trip(data_path, data_option = 0, sync_time = NULL)
+}
+\arguments{
+\item{data_path}{a path that the trip csv file located}
+
+\item{data_option}{the variables that the user want to select from the data. \cr
+The following list explains the options; \cr
+Option 0 : all \cr
+Option 1 : gps \cr
+Option 2 : accel xyz \cr
+Option 3 : linacc xyz \cr
+Option 4 : gyro xyz \cr
+Option 5 : roll, pitch, yaw \cr
+Option 6 : speed, heading}
+
+\item{sync_time}{this arguments will be used when the recorded data has different time line with video.}
 }
 \description{
-get_trip function will read the csv file which records the driving trip data
+get_trip function will read a csv file which records the driving trip data
 }

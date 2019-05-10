@@ -8,3 +8,9 @@ Description: This is a collection of fucntions that could be used in telematics 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Imports:
+    magrittr,
+    dplyr,
+    geosphere
+Suggests: tidyverse
+RoxygenNote: 6.1.1

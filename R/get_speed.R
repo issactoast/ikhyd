@@ -10,11 +10,11 @@ convertTOmeter <- function(pointVector){
 
 #' Calculate speed(mph) from GPS coordinates
 #'
-#' @name get_speed
+#' @name speed_from_gps
 #' @param gps_coordinates GPS coordinates
 #' @return speed recorded as mile per hour
 #' @export
-get_speed <- function(gps_coordinates){
+speed_from_gps <- function(gps_coordinates){
     # data has time, x, y
     # tempD consists x1, y1, x2, y2
     tempD <- cbind.data.frame(
@@ -26,17 +26,17 @@ get_speed <- function(gps_coordinates){
 
     gps_speed <- apply(tempD, 1, convertTOmeter) / delta_t
     gps_speed <- c(0, gps_speed) * 2.27
-    gps_speed
+    data.frame(time = gps_coordinates$time , speed = gps_speed)
 }
 
 #' Calculate speed(mph) from accelerometer y values
 #'
-#' @name acc_integration
+#' @name speed_from_acc
 #' @param time_vec time vector
 #' @param acc_vec accelerometer vector
 #' @return a speed vector recorded as mile per hour
 #' @export
-acc_integration <- function(time_vec, acc_vec){
+speed_from_acc <- function(time_vec, acc_vec){
     dt <- (utils::tail(time_vec, -1) - utils::head(time_vec, -1))
     smdv_y <- utils::head(acc_vec, -1) * dt
     velocity <- rep(0, length(smdv_y))

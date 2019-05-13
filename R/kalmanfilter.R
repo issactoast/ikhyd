@@ -151,10 +151,10 @@ get_NE <- function(acc_data, heading_data){
 kalmanfilter_gps <- function(gps_data, acc_data, heading_data){
 
     acc_data_2d_orig <- acc_data %>%
-        dplyr::mutate(x = smth_y * 0.00001,
-                      y = smth_y * 0.00001)
+        dplyr::mutate(x = x * 0.00001,
+                      y = y * 0.00001)
 
-    dt <- tail(acc_data_2d_orig$time, -1) - head(acc_data_2d_orig$time, -1)
+    dt <- utils::tail(acc_data_2d_orig$time, -1) - utils::head(acc_data_2d_orig$time, -1)
     acc_data_NE <- get_NE(acc_data_2d_orig, heading_data)
 
     N <- dim(gps_data)[1]
@@ -194,6 +194,6 @@ kalmanfilter_gps <- function(gps_data, acc_data, heading_data){
 }
 
 if(getRversion() >= "2.15.1") {
-    utils::globalVariables(c("time", "y", "gyroZ.rad.s.", "TrueHeading",
+    utils::globalVariables(c("time", "x", "y", "gyroZ.rad.s.", "TrueHeading",
                              "angle_x", "angle_y", "a_est", "a_nor"))
 }

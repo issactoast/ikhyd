@@ -1,16 +1,65 @@
 ---
-title: "I Know How You Drive"
-output:
-      md_document:
-          variant: markdown_github
+output: github_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+# I Know How You Drive (ikhyd)
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of ikhyd is to make the analysis process of telematics data easier.
+
+## Installation
+
+You can install the development version from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("issactoast/ikhyd")
 ```
 
-# I Know How You Drive
+## Example
 
-## R package for telematics data analysis
+### Calibation of telematics data
 
-This is a R package for the analysis of telematics data.
+Using `calibrate_telematics` function, you can obtain a calibarated longitudinal, latitudinal acceleration data and GPS data from telematics data.
+
+```{r example}
+library(ikhyd)
+
+## basic example code
+sample_data_path <- system.file("extdata", "sample_trip.csv",
+                                package = "ikhyd")
+
+calibration_result <- calibrate_telematics(sample_data_path)
+
+acc_data <- calibration_result$acc_data
+gps_data <- calibration_result$gps_data
+```
+
+
+- Result (acc_data)
+    - x: Lateral acceleration
+    - y: Longditudinal acceleration
+```{r}
+head(acc_data)
+```
+
+
+- Result (gps_data)
+    - x: Longditude
+    - y: Latitude
+```{r}
+head(gps_data)
+```
+

@@ -155,13 +155,8 @@ kalmanfilter_gps <- function(gps_data, acc_data, heading_data){
     acc_data_2d_orig <- acc_data %>%
         dplyr::mutate(x = x * 0.00001,
                       y = y * 0.00001)
-<<<<<<< HEAD
 
     dt <- utils::tail(gps_data$time, -1) - utils::head(gps_data$time, -1)
-=======
-    gps_data <- gps_data %>% dplyr::select(x, y)
-    dt <- utils::tail(acc_data_2d_orig$time, -1) - utils::head(acc_data_2d_orig$time, -1)
->>>>>>> 26c57038186f12364e212da6c364946b8c1c8c56
     acc_data_NE <- get_NE(acc_data_2d_orig, heading_data)
     
     gps_data <- gps_data %>% 

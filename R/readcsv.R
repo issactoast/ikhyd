@@ -1,5 +1,5 @@
 #' convert time stamp into seconds
-#' 
+#'
 #' @name convert_time
 #' @param timelist time value in list consists of 3 elements;
 #' the first element is hour, the second element is min, the last one is seconds.
@@ -34,7 +34,7 @@ get_trip <- function(data_path,
                      sync_time = NULL){
 
     temp_data <- utils::read.csv(data_path, header = TRUE, fill = TRUE)
-    
+
     temp_time <- as.character(temp_data$Timestamp) %>% strsplit(" ") %>% unlist
     temp_time <- temp_time[seq(2, length(temp_time), by = 2)] %>% strsplit(":")
 
@@ -46,28 +46,21 @@ get_trip <- function(data_path,
         sync_time <- strsplit(sync_time, ":")
         start_time <- convert_time(sync_time)
     }
-    
+
     if (data_option == 0){
         data <- temp_data
     } else if (data_option == 1) {
         # filter gps data
         data <- dplyr::select(temp_data, Timestamp, Lat, Long)
-        convertTOmeter <- function(pointVector){
-            geosphere::distm(pointVector[1:2], pointVector[3:4], fun = geosphere::distHaversine)
-        }
-        tempD <- cbind.data.frame(utils::head(data[,c(3,2)], -1),
-                                  utils::tail(data[,c(3,2)], -1))
-        gps_speed <- apply(tempD, 1, convertTOmeter)
-        data$speed <- c(gps_speed, utils::tail(gps_speed, 1)) * 2.23694
-        colnames(data) <- c("Timestamp", "y", "x", "speed")
+        colnames(data) <- c("Timestamp", "y", "x")
     } else if (data_option == 2) {
         # filter gps data
         data <- dplyr::select(temp_data, Timestamp,
                               accelX.g., accelY.g., accelZ.g.)
         colnames(data) <- c("Timestamp", "x", "y", "z")
-        data$x <- data$x * 9.81865
-        data$y <- data$y * 9.81865
-        data$z <- data$z * 9.81865
+        data$x <- -data$x * 9.81865
+        data$y <- -data$y * 9.81865
+        data$z <- -data$z * 9.81865
     } else if (data_option == 3){
         # filter gps data
         data <- dplyr::select(temp_data, Timestamp,
@@ -102,5 +95,5 @@ get_trip <- function(data_path,
 if(getRversion() >= "2.15.1") {
     temp_data <- utils::read.csv(system.file("extdata", "sample_trip.csv", package = "ikhyd"),
                                  header = TRUE, fill = TRUE)
-    utils::globalVariables(names(temp_data))  
+    utils::globalVariables(names(temp_data))
 }

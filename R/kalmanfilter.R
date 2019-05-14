@@ -59,10 +59,10 @@ kalmanfilter <- function(x, P, z, u,
 kalmanfilter_ay <- function(acc_data, speed_data){
 
     n <- length(acc_data$y)
-    dt <- with(speed_data, utils::tail(time, -1) - utils::head(time, -1))
-    estimated_states <- rep(0, n)
+    dt <- with(acc_data, utils::tail(time, -1) - utils::head(time, -1))
+    estimated_states <- matrix(0, nrow = n, ncol = 2)
 
-    estimated_states[1] <- 0
+    estimated_states[1, ] <- 0
     est_data <- 0
     P = 1; Q = 0.0001; R = 1; h = 2.23694;
 
@@ -78,11 +78,10 @@ kalmanfilter_ay <- function(acc_data, speed_data){
 
         est_data <- as.numeric(result$xhat)
         P <- result$Phat
-        estimated_states[i] <- est_data
+        estimated_states[i, 1] <- est_data
+        estimated_states[i, 2] <- (est_data - estimated_states[i-1, 1])/dt[i-1]
     }
-
-    estimated_states
-
+    as.numeric(estimated_states[, 2])
 }
 
 #' Calibarate accelerometer x-axis using Gyroscope data
@@ -118,7 +117,7 @@ kalmanfilter_ax <- function(acc_data, gyro_data, smth_speed_data){
         estimated_states[i] <- est_data
     }
 
-    estimated_states
+    as.numeric(estimated_states)
 
 }
 
@@ -130,7 +129,7 @@ kalmanfilter_ax <- function(acc_data, gyro_data, smth_speed_data){
 #' @param heading_data heading data based on magnetometer which has time and trueheading
 #' @return a dataframe which has latudinal and longitudinal acceleration data.
 get_NE <- function(acc_data, heading_data){
-    cbind.data.frame(heading_data, acc_data) %>%
+    cbind.data.frame(heading_data %>% dplyr::select(TrueHeading), acc_data) %>%
         dplyr::select(TrueHeading, x, y) %>%
         dplyr::mutate(angle_y = dplyr::if_else(y > 0, TrueHeading, (TrueHeading + 180) %% 360)) %>%
         dplyr::mutate(angle_x = dplyr::if_else(x > 0, (TrueHeading + 90) %% 360, (TrueHeading + 270) %% 360)) %>%
@@ -156,8 +155,13 @@ kalmanfilter_gps <- function(gps_data, acc_data, heading_data){
     acc_data_2d_orig <- acc_data %>%
         dplyr::mutate(x = x * 0.00001,
                       y = y * 0.00001)
+<<<<<<< HEAD
 
     dt <- utils::tail(gps_data$time, -1) - utils::head(gps_data$time, -1)
+=======
+    gps_data <- gps_data %>% dplyr::select(x, y)
+    dt <- utils::tail(acc_data_2d_orig$time, -1) - utils::head(acc_data_2d_orig$time, -1)
+>>>>>>> 26c57038186f12364e212da6c364946b8c1c8c56
     acc_data_NE <- get_NE(acc_data_2d_orig, heading_data)
     
     gps_data <- gps_data %>% 
@@ -194,7 +198,9 @@ kalmanfilter_gps <- function(gps_data, acc_data, heading_data){
         estimated_states[i,] <- est_data
     }
 
-    estimated_states[,1:2]
+    data.frame(time = acc_data$time,
+               x = estimated_states[,1],
+               y = estimated_states[,2])
 
 }
 

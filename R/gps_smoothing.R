@@ -2,18 +2,27 @@
 #'
 #' @name smoothing_gps
 #' @param gps_data the collection of GPS coordinates with time info.
+#' @param acc_data the accelerometer data
 #' @return smoothed GPS data with same number of GPS points.
 #' @export
-smoothing_gps <- function(gps_data){
-    # data.frame(time = gps_data$time,
-    #            x = with(gps_data, stats::predict(stats::smooth.spline(time, x, nknots = ceiling(2.5 * max(time))), time))$y,
-    #            y = with(gps_data, stats::predict(stats::smooth.spline(time, y, nknots = ceiling(2.5 * max(time))), time))$y)
+smoothing_gps <- function(gps_data, acc_data){
+    stop_info <- stop_detection(acc_data)
+    gps_data <- stop_correction(gps_data, stop_info)
+
+    unique_pos <- !duplicated.array(gps_data[,2:3])
+
+    n <- dim(stop_info)[1]
+    for(i in 1:n){
+        unique_pos[stop_info$stop_start[i]:stop_info$stop_end[i]] <- TRUE
+    }
+
+    unique_gps <- gps_data[unique_pos,]
+
     data.frame(time = gps_data$time,
-               x = with(gps_data,
-                        stats::predict(stats::smooth.spline(time, x, nknots = 0.8 * length(time)), time))$y,
-               y = with(gps_data,
-                        stats::predict(stats::smooth.spline(time, y, nknots = 0.8 * length(time)), time))$y)
+               x = with(unique_gps, stats::predict(stats::smooth.spline(time, x), time))$y,
+               y = with(unique_gps, stats::predict(stats::smooth.spline(time, y), time))$y)
 }
+
 
 # library(ikhyd)
 # acc_data <- get_trip(system.file("extdata", "sample_trip.csv", package = "ikhyd"),
@@ -21,6 +30,26 @@ smoothing_gps <- function(gps_data){
 #
 # gps_data <- get_trip(system.file("extdata", "sample_trip.csv", package = "ikhyd"),
 #                      data_option = 1)
+
+#' Correction of GPS based on stop information
+#'
+#' @name stop_correction
+#' @param gps_data the GPS data
+#' @param stop_info the information of stop
+#' @return A GPS data which does not have different GPS points when the vehicle is stop
+stop_correction <- function(gps_data, stop_info){
+    n <- dim(stop_info)[1]
+
+    for(i in 1:n){
+        tempD <- unique.array(gps_data[stop_info$stop_start[i]:stop_info$stop_end[i], 2:3])
+        if (dim(tempD)[1] == 1){
+            next
+        } else {
+            gps_data[stop_info$stop_start[i]:stop_info$stop_end[i], 2:3] <- tempD[1,]
+        }
+    }
+    gps_data
+}
 
 #' Detecting stops from accelerometer y-axis
 #'

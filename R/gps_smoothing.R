@@ -17,10 +17,13 @@ smoothing_gps <- function(gps_data, acc_data){
     }
 
     unique_gps <- gps_data[unique_pos,]
+    result <- with(unique_gps, stats::smooth.spline(time, x, nknots = length(time)))
 
     data.frame(time = gps_data$time,
-               x = with(unique_gps, stats::predict(stats::smooth.spline(time, x, nknots = length(time)), gps_data$time))$y,
-               y = with(unique_gps, stats::predict(stats::smooth.spline(time, y, nknots = length(time)), gps_data$time))$y)
+               x = stats::predict(with(unique_gps, stats::smooth.spline(time, x, nknots = length(time))),
+                                  gps_data$time),
+               y = stats::predict(with(unique_gps, stats::smooth.spline(time, y, nknots = length(time))),
+                                  gps_data$time))
 }
 
 

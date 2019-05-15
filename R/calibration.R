@@ -11,7 +11,7 @@ calibrate_telematics <- function(file_path){
     heading_data <- get_trip(file_path, data_option = 6)
 
     # gps smoothing
-    gps_data <- smoothing_gps(gps_data)
+    gps_data <- smoothing_gps(gps_data, acc_data)
 
     # calculate speed from gps
     gps_speed <- speed_from_gps(gps_data)

@@ -21,9 +21,9 @@ smoothing_gps <- function(gps_data, acc_data){
 
     data.frame(time = gps_data$time,
                x = stats::predict(with(unique_gps, stats::smooth.spline(time, x, nknots = length(time))),
-                                  gps_data$time),
+                                  gps_data$time)$y,
                y = stats::predict(with(unique_gps, stats::smooth.spline(time, y, nknots = length(time))),
-                                  gps_data$time))
+                                  gps_data$time)$y)
 }
 
 

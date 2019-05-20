@@ -58,31 +58,85 @@ kalmanfilter <- function(x, P, z, u,
 #' @export
 kalmanfilter_ay <- function(acc_data, speed_data){
 
+    # library(ikhyd)
+    # acc_data <- get_trip(system.file("extdata", "trip2.csv", package = "ikhyd"),
+    #                      data_option = 2)
+    # with(speed_data, plot(time, speed, type="l"))
+    # acc_data <- stop_correction_acc(acc_data, stop_info)
+
+    stop_info <- stop_detection(acc_data)
+    speed_data <- smoothing_speed(speed_data, stop_info)
+
+    stop_mom <- 0
+    n <- dim(stop_info)[1]
+    for(i in 1:n){
+        stop_mom <- c(stop_mom,
+                      stop_info$stop_start[i]:stop_info$stop_end[i])
+    }
+
     n <- length(acc_data$y)
     dt <- with(acc_data, utils::tail(time, -1) - utils::head(time, -1))
     estimated_states <- matrix(0, nrow = n, ncol = 2)
 
     estimated_states[1, ] <- 0
     est_data <- 0
-    P = 1; Q = 0.0001; R = 1; h = 2.23694;
+    # P = 1; h = 2.23694;
+    P = 1; h = 1;
+
+    # P = 1; Q = 0.00001; R = 1; h = 2.23694;
+    # P = 1; Q = 100; R = 0.001; h = 2.23694;
+    # plot(estimated_states[2800:2850,1] * 2.23694)
+    # i <- 2823
+
+    previous_speed <- 0
 
     i <- 2
     for (i in 2:n){
         A <- 1
         B <- dt[i-1]
         u <- as.numeric(acc_data$y[i-1])
-        z <- as.numeric(speed_data$speed[i])
+        z <- as.numeric(speed_data$speed[i] * 0.44704)
+
+        if( i %in% stop_mom){
+            u <- u / 2
+            Q = 1; R = 1;
+        } else {
+            Q = 1; R = 1;
+        }
 
         result <- kalmanfilter_1D(est_data, u, A, B, z, h,
                                   P, Q, R)
 
         est_data <- as.numeric(result$xhat)
+        acc_y <- (est_data - previous_speed)/dt[i-1]
+        previous_speed <- est_data
+
         P <- result$Phat
         estimated_states[i, 1] <- est_data
-        estimated_states[i, 2] <- (est_data - estimated_states[i-1, 1])/dt[i-1]
+        estimated_states[i-1, 2] <- acc_y
     }
+
     as.numeric(estimated_states[, 2])
 }
+
+#' Correct accelerometer values for stop
+#'
+#' @name stop_correction_acc
+#' @param acc_data accelerometer data containing time, x, y, z
+#' @param stop_info information of stop
+#' @return An accelerometer data whose values are zero at stop moments
+#' @export
+stop_correction_acc <- function(acc_data, stop_info){
+
+    n <- dim(stop_info)[1]
+    i <- 1
+    for(i in 1:n){
+        acc_data$y[stop_info$stop_start[i]:stop_info$stop_end[i]] <- 0
+        acc_data$x[stop_info$stop_start[i]:stop_info$stop_end[i]] <- 0
+    }
+    acc_data
+}
+
 
 #' Calibarate accelerometer x-axis using Gyroscope data
 #'
@@ -152,14 +206,21 @@ get_NE <- function(acc_data, heading_data){
 #' @export
 kalmanfilter_gps <- function(gps_data, acc_data, heading_data){
 
+    # library(ikhyd)
+    # heading_data <- get_trip(system.file("extdata", "trip2.csv", package = "ikhyd"),
+    #                      data_option = 6)
+
     acc_data_2d_orig <- acc_data %>%
         dplyr::mutate(x = x * 0.00001,
                       y = y * 0.00001)
 
     dt <- utils::tail(gps_data$time, -1) - utils::head(gps_data$time, -1)
     acc_data_NE <- get_NE(acc_data_2d_orig, heading_data)
-    
-    gps_data <- gps_data %>% 
+
+    v_e <- speed_from_acc(acc_data$time, acc_data_NE$a_est)
+    v_n <- speed_from_acc(acc_data$time, acc_data_NE$a_nor)
+
+    gps_data <- gps_data %>%
         dplyr::select(x, y)
 
     N <- dim(gps_data)[1]
@@ -169,10 +230,9 @@ kalmanfilter_gps <- function(gps_data, acc_data, heading_data){
     est_data <- as.numeric(c(gps_data[1,], 0, 0))
 
 
-    H <- diag(4)
-    P <- diag(4)
-    R <- diag(4)
-    Q <- diag(4) * 0.0008
+    H <- diag(4); P <- diag(4)
+    # R <- diag(4); Q <- diag(4)
+    R <- diag(4) * 0.0008; Q <- diag(4)
 
     i <- 2
     for (i in 2:N){
@@ -183,7 +243,8 @@ kalmanfilter_gps <- function(gps_data, acc_data, heading_data){
         B <- matrix(c(0.5 * dt[i-1]^2, 0, dt[i-1], 0,
                       0, 0.5 * dt[i-1]^2, 0, dt[i-1]), ncol = 2)
         u <- as.numeric(acc_data_NE[i-1,])
-        z <- as.numeric(c(gps_data[i,], (gps_data[i,] - gps_data[i-1,]) / dt[i-1]))
+        # z <- as.numeric(c(gps_data[i,], (gps_data[i,] - gps_data[i-1,]) / dt[i-1]))
+        z <- as.numeric(c(gps_data[i,], v_e[i], v_n[i]))
 
         result <- kalmanfilter(est_data, P,
                                z, u, A, B, H, Q, R)
@@ -200,7 +261,7 @@ kalmanfilter_gps <- function(gps_data, acc_data, heading_data){
 }
 
 if(getRversion() >= "2.15.1") {
-    utils::globalVariables(c("time", "x", "y",  
+    utils::globalVariables(c("time", "x", "y",
                              "speed", "TrueHeading", "gyroZ.rad.s.",
                              "angle_x", "angle_y", "a_est", "a_nor"))
 }

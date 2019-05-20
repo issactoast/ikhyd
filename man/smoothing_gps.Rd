@@ -4,12 +4,12 @@
 \alias{smoothing_gps}
 \title{Smoothing GPS data using smoothing spline}
 \usage{
-smoothing_gps(gps_data, acc_data)
+smoothing_gps(gps_data, stop_info)
 }
 \arguments{
 \item{gps_data}{the collection of GPS coordinates with time info.}
 
-\item{acc_data}{the accelerometer data}
+\item{stop_info}{stop infomation}
 }
 \value{
 smoothed GPS data with same number of GPS points.

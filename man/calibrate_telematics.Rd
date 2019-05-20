@@ -4,10 +4,12 @@
 \alias{calibrate_telematics}
 \title{Calibarate telematics data}
 \usage{
-calibrate_telematics(file_path)
+calibrate_telematics(file_path, sync_time = NULL)
 }
 \arguments{
 \item{file_path}{file path of telematics data}
+
+\item{sync_time}{sync_time}
 }
 \value{
 calibrated GPS data and accelerometer x-axis and y-axis data

@@ -4,10 +4,10 @@
 \alias{speed_from_gps}
 \title{Calculate speed(mph) from GPS coordinates}
 \usage{
-speed_from_gps(gps_coordinates)
+speed_from_gps(gps_data)
 }
 \arguments{
-\item{gps_coordinates}{GPS coordinates}
+\item{gps_data}{GPS coordinates}
 }
 \value{
 speed recorded as mile per hour

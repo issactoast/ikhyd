@@ -12,6 +12,8 @@ LazyData: true
 Imports:
     magrittr,
     dplyr,
-    geosphere
+    geosphere,
+    anytime,
+    lubridate
 Suggests: tidyverse
 RoxygenNote: 6.1.1

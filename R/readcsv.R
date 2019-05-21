@@ -27,6 +27,7 @@ convert_time <- function(timelist){
 #' Option 4 : gyro xyz \cr
 #' Option 5 : roll, pitch, yaw \cr
 #' Option 6 : speed, heading
+#' Option 7 : magnetometer x, y, z \cr
 #' @param sync_time this arguments will be used when the recorded data has different time line with video.
 #' @export
 get_trip <- function(data_path,
@@ -51,8 +52,9 @@ get_trip <- function(data_path,
         data <- temp_data
     } else if (data_option == 1) {
         # filter gps data
-        data <- dplyr::select(temp_data, Timestamp, Lat, Long)
-        colnames(data) <- c("Timestamp", "y", "x")
+        data <- dplyr::select(temp_data, Timestamp, Long, Lat,
+                              Alt.m., HorizontalAccuracy.m., VerticalAccuracy.m.)
+        colnames(data) <- c("Timestamp", "x", "y", "z", "accuracy_horiz", "accuracy_vert")
     } else if (data_option == 2) {
         # filter gps data
         data <- dplyr::select(temp_data, Timestamp,
@@ -83,6 +85,11 @@ get_trip <- function(data_path,
                               Speed.m.s., TrueHeading)
         data$Speed.m.s. <- data$Speed.m.s. * 2.23694
         colnames(data)[2] <- "speed"
+    } else if (data_option == 7){
+        # filter gps data
+        data <- dplyr::select(temp_data, Timestamp,
+                              magX.ÂµT., magY.ÂµT., magZ.ÂµT.)
+        colnames(data) <- c("Timestamp", "x", "y", "z")
     }
 
     data <- data %>%

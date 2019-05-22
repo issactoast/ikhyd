@@ -30,35 +30,35 @@ smoothing_gps <- function(gps_data, stop_info){
                y = s2(gps_data$time))
 }
 
-gps_data1 <- spline_gps(gps_data, acc_data)
+# gps_data1 <- spline_gps(gps_data, acc_data)
 # gps_data2 <- spline_gps2(gps_data, acc_data)
 
-m <- 40
-k <- floor( max(gps_data$time) / m )
-i <- 1
-for (i in 1:k){
-    st_p <- (m/2 * (i-1))
-    if (i == k){
-        gps_sub <- gps_data1 %>%
-            filter(time >= st_p)
-
-        with(gps_sub, plot(x, y, type = "l"), asp=1)
-        with(gps_data %>% filter(time >= st_p),
-             points(x, y))
-        with(gps_data %>% filter(accuracy_horiz > 5),
-             points(x, y, col = "red"))
-    } else {
-        gps_sub <- gps_data1 %>%
-            filter(time >= st_p & time <= (st_p + (m-1)))
-        with(gps_sub, plot(x, y, type = "l",
-                           main = paste(i)), asp=1)
-        with(gps_data %>% filter(time >= st_p &
-                                     time <= (st_p + (m-1))),
-             points(x, y))
-        with(gps_data %>% filter(accuracy_horiz > 5),
-             points(x, y, col = "red"))
-    }
-}
+# m <- 40
+# k <- floor( max(gps_data$time) / m )
+# i <- 1
+# for (i in 1:k){
+#     st_p <- (m/2 * (i-1))
+#     if (i == k){
+#         gps_sub <- gps_data1 %>%
+#             filter(time >= st_p)
+#
+#         with(gps_sub, plot(x, y, type = "l"), asp=1)
+#         with(gps_data %>% filter(time >= st_p),
+#              points(x, y))
+#         with(gps_data %>% filter(accuracy_horiz > 5),
+#              points(x, y, col = "red"))
+#     } else {
+#         gps_sub <- gps_data1 %>%
+#             filter(time >= st_p & time <= (st_p + (m-1)))
+#         with(gps_sub, plot(x, y, type = "l",
+#                            main = paste(i)), asp=1)
+#         with(gps_data %>% filter(time >= st_p &
+#                                      time <= (st_p + (m-1))),
+#              points(x, y))
+#         with(gps_data %>% filter(accuracy_horiz > 5),
+#              points(x, y, col = "red"))
+#     }
+# }
 
 spline_gps <- function(gps_data, acc_data){
 
@@ -212,40 +212,40 @@ spline_gps2 <- function(gps_data, acc_data){
 # }
 
 # library(ikhyd)
-library(tidyverse)
-# library(magrittr)
-gps_data <- get_trip(system.file("extdata", "trip1.csv", package = "ikhyd"),
-                     data_option = 1)
-
-acc_data <- get_trip(system.file("extdata", "trip1.csv", package = "ikhyd"),
-                     data_option = 2)
-
-lacc_data <- get_trip(system.file("extdata", "trip1.csv", package = "ikhyd"),
-                     data_option = 3)
-
-gyro_data <- get_trip(system.file("extdata", "trip1.csv", package = "ikhyd"),
-                      data_option = 4)
-roll_data <- get_trip(system.file("extdata", "trip1.csv", package = "ikhyd"),
-                      data_option = 5)
-
-compass_data <- get_trip(system.file("extdata", "trip1.csv", package = "ikhyd"),
-                      data_option = 7)
-
-
-head(gps_data)
-
-with(gps_data  %>% filter(time < 30) ,
-     plot(time, z, type = "l"))
-
-with(acc_data %>% filter(time < 30),
-     plot(time, y, type = "l"))
-
-with(gyro_data %>% filter(time < 300),
-     plot(time, gyroX.rad.s., type = "l"))
-with(roll_data %>% filter(time < 100),
-     plot(time, Roll.rads., type = "l"))
-
-gps_data[gps_data$accuracy_horiz > 5,] %>% select(time) %>% unlist() %>% hist
+# library(tidyverse)
+# # library(magrittr)
+# gps_data <- get_trip(system.file("extdata", "trip1.csv", package = "ikhyd"),
+#                      data_option = 1)
+# head(gps_data %>% filter(time < 300 & time > 200))
+# acc_data <- get_trip(system.file("extdata", "trip1.csv", package = "ikhyd"),
+#                      data_option = 2)
+#
+# lacc_data <- get_trip(system.file("extdata", "trip1.csv", package = "ikhyd"),
+#                      data_option = 3)
+#
+# gyro_data <- get_trip(system.file("extdata", "trip1.csv", package = "ikhyd"),
+#                       data_option = 4)
+# roll_data <- get_trip(system.file("extdata", "trip1.csv", package = "ikhyd"),
+#                       data_option = 5)
+#
+# compass_data <- get_trip(system.file("extdata", "trip1.csv", package = "ikhyd"),
+#                       data_option = 7)
+#
+#
+# head(gps_data)
+#
+# with(gps_data  %>% filter(time < 30) ,
+#      plot(time, z, type = "l"))
+#
+# with(acc_data %>% filter(time < 30),
+#      plot(time, y, type = "l"))
+#
+# with(gyro_data %>% filter(time < 300),
+#      plot(time, gyroX.rad.s., type = "l"))
+# with(roll_data %>% filter(time < 100),
+#      plot(time, Roll.rads., type = "l"))
+#
+# gps_data[gps_data$accuracy_horiz > 5,] %>% select(time) %>% unlist() %>% hist
 # head(gps_data)
 #
 # acc_data <- get_trip(system.file("extdata", "sample_trip.csv", package = "ikhyd"),

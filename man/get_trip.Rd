@@ -17,7 +17,8 @@ Option 2 : accel xyz \cr
 Option 3 : linacc xyz \cr
 Option 4 : gyro xyz \cr
 Option 5 : roll, pitch, yaw \cr
-Option 6 : speed, heading}
+Option 6 : speed, heading
+Option 7 : magnetometer x, y, z \cr}
 
 \item{sync_time}{this arguments will be used when the recorded data has different time line with video.}
 }

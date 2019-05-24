@@ -14,6 +14,8 @@ Imports:
     dplyr,
     geosphere,
     anytime,
-    lubridate
+    lubridate,
+    ggplot2,
+    ggmap
 Suggests: tidyverse
 RoxygenNote: 6.1.1

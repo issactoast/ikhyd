@@ -4,10 +4,14 @@
 \alias{stop_detection}
 \title{Detecting stops from accelerometer y-axis}
 \usage{
-stop_detection(acc_data)
+stop_detection(acc_data, interval_sec = 3, var_check = 0.004)
 }
 \arguments{
 \item{acc_data}{the accelerometer data}
+
+\item{interval_sec}{interval check}
+
+\item{var_check}{thresh hold value}
 }
 \value{
 A dataframe containing the position of stop starts and ends, and length of stop.

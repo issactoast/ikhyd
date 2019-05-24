@@ -68,9 +68,9 @@ get_trip <- function(data_path,
         data <- dplyr::select(temp_data, Timestamp,
                               accelUserX.g., accelUserY.g., accelUserZ.g.)
         colnames(data) <- c("Timestamp", "x", "y", "z")
-        data$x <- data$x * 9.81865
-        data$y <- data$y * 9.81865
-        data$z <- data$z * 9.81865
+        data$x <- -data$x * 9.81865
+        data$y <- -data$y * 9.81865
+        data$z <- -data$z * 9.81865
     } else if(data_option == 4){
         # filter gyroscope data
         data <- dplyr::select(temp_data, Timestamp,

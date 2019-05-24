@@ -24,7 +24,7 @@ speed_from_gps <- function(gps_data){
 
     delta_t <- with(gps_data, utils::tail(time, -1) - utils::head(time, -1))
 
-    gps_speed <- apply(tempD, 1, convertTOmeter) / delta_t
+    gps_speed <- apply(tempD, 1, convertTOmeter) #/ delta_t
     gps_speed <- c(0, gps_speed) * 2.27
     data.frame(time = gps_data$time , speed = gps_speed)
 }
@@ -84,6 +84,7 @@ speed_from_acc <- function(time_vec, acc_vec){
 #' @return a OBD2 data with speed
 #' @export
 OBD2_data <- function(file_path){
+    
     text_data <- readLines(file_path)
     speed_part <- text_data[grep("010D", text_data)]
     result <- unlist(strsplit(speed_part, ";"))[-c(1:3)]

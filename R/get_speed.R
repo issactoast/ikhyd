@@ -113,18 +113,18 @@ OBD2_data <- function(file_path){
 #' @return a OBD2 data with GPS
 #' @export
 OBD2gps_data <- function(file_path){
-    file_path <- system.file("extdata", "trip2.txt", package = "ikhyd")
+
     text_data <- readLines(file_path)
 
     gps_part <- text_data[grep("gps", text_data)]
     result <- unlist(strsplit(gps_part, ";"))[-c(1:7)]
 
-    gps_data_contents <- result[c(FALSE, FALSE, TRUE)]
+    gps_data_contents <- result[grep(":", result)]
     gps_data_contents <- unlist(strsplit(as.character(gps_data_contents), ":"))
     y <- gps_data_contents[c(T, F, F, F, F, F, F)]
     x <- gps_data_contents[c(F, T, F, F, F, F, F)]
 
-    gps_data_time <- anytime::anytime(as.numeric(as.character(result[c(TRUE, FALSE, FALSE)]))/1000)
+    gps_data_time <- anytime::anytime(as.numeric(as.character(gps_data_contents[c(F, F, F, T, F, F, F)]))/1000)
 
     start_time <- as.character(gps_data_time[1])
 

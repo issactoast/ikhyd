@@ -70,14 +70,14 @@ spline_gps <- function(gps_data, acc_data){
         st_p <- (30 * (i-1))
         if (i == k){
             gps_sub <- gps_data %>%
-                filter(time >= st_p)
+                dplyr::filter(time >= st_p)
             acc_sub <- acc_data %>%
-                filter(time >= st_p)
+                dplyr::filter(time >= st_p)
         } else {
             gps_sub <- gps_data %>%
-                filter(time >= st_p & time <= (st_p+30))
+                dplyr::filter(time >= st_p & time <= (st_p+30))
             acc_sub <- acc_data %>%
-                filter(time >= st_p & time <= (st_p+30))
+                dplyr::filter(time >= st_p & time <= (st_p+30))
         }
 
         stop_info <- stop_detection2(acc_sub,
@@ -348,7 +348,7 @@ stop_detection2 <- function(acc_sub,
         y <- acc_vec[i:(i + window_size)]
 
         check_range <-  stats::cor(x, y) * (stats::sd(y) / stats::sd(x))
-        if ((abs(check_range) < slope_check) & (abs(var(y)) < 0.03)){
+        if ((abs(check_range) < slope_check) & (abs(stats::var(y)) < 0.03)){
             result[i] <- 1
             mean_value[i] <- mean(acc_vec[i:(i + window_size)])
         }
@@ -358,7 +358,7 @@ stop_detection2 <- function(acc_sub,
         x <- 1:(interval_sec*25)
         y <- acc_vec[(i-window_size):i]
         check_range <-  stats::cor(x, y) * (stats::sd(y) / stats::sd(x))
-        if ((abs(check_range) < slope_check) & (abs(var(y)) < 0.03)){
+        if ((abs(check_range) < slope_check) & (abs(stats::var(y)) < 0.03)){
             result[i] <- 1
             mean_value[i] <- mean(acc_vec[(i-window_size):i])
         }
@@ -403,6 +403,8 @@ stop_detection2 <- function(acc_sub,
 
     data.frame(stop_start = myresult[,1],
                stop_end   = myresult[,2],
+               stop_start_sec = acc_sub$time[myresult[,1]],
+               stop_end_sec = acc_sub$time[myresult[,2]],
                legnth_sec = (myresult[,2] - myresult[,1])/25 )
 }
 

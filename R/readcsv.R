@@ -88,7 +88,7 @@ get_trip <- function(data_path,
     } else if (data_option == 7){
         # filter gps data
         data <- dplyr::select(temp_data, Timestamp,
-                              magX.ÂµT., magY.ÂµT., magZ.ÂµT.)
+                              dplyr::starts_with("mag"))
         colnames(data) <- c("Timestamp", "x", "y", "z")
     }
 

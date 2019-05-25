@@ -8,12 +8,12 @@
 #' @return ggmap object
 #' @export
 get_tripmap <- function(start_t, end_t, gps_data){
-    
+
     # api from google map
     api <- "AIzaSyCzLbAEmXBeFEdQuzHWCxb4Kvz6ErdZ2m4"
     ggmap::register_google(key = api)
-    
-    gps_data %>% 
+
+    gps_data %>%
         dplyr::filter(time > start_t & time < end_t) %>%
         dplyr::select(x, y) %>%
         dplyr::summarise(c_x = mean(x),
@@ -33,15 +33,15 @@ get_tripmap <- function(start_t, end_t, gps_data){
 #' @export
 get_tripmap2 <- function(time_insec, gps_data,
                          zoom_scale = 20){
-    
+
     # api from google map
     api <- "AIzaSyCzLbAEmXBeFEdQuzHWCxb4Kvz6ErdZ2m4"
     ggmap::register_google(key = api)
-    
+
     time_pos <- which.min(abs(gps_data$time - time_insec))
-    
+
     gps_data[time_pos, ] -> sub_data
-    
+
     map_obj <- ggmap::get_googlemap(center = c(sub_data$x, sub_data$y),
                          maptype = "hybrid",
                          zoom = zoom_scale, scale = 1)
@@ -54,12 +54,11 @@ get_tripmap2 <- function(time_insec, gps_data,
 #'
 #' @name draw_map
 #' @param map_obj the object from google map
-#' @param end_t end time
 #' @param gps_data GPS data
 #' @return ggmap object
 #' @export
 draw_map <- function(map_obj, gps_data){
-    mapdraw <- map_obj + 
+    mapdraw <- map_obj +
         ggplot2::geom_point(data = gps_data, aes(x = x, y = y),
                             size = 1.5, color = "red") +
         ggplot2::theme(plot.margin= unit(c(0, 0, 0, 0), "lines"),
@@ -69,7 +68,7 @@ draw_map <- function(map_obj, gps_data){
                        axis.title.y=element_blank(),
                        axis.text.y=element_blank(),
                        axis.ticks.y=element_blank())
-    
+
     if( length(attributes(map_obj)$time_pos) == 1 ){
         mapdraw <- mapdraw +
             ggplot2::geom_point(data = gps_data[attributes(map_obj)$time_pos,],

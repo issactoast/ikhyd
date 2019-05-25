@@ -54,17 +54,36 @@ kalmanfilter <- function(x, P, z, u,
 #' @name kalmanfilter_ay
 #' @param acc_data accelerometer data containing time, x, y, z
 #' @param speed_data speed data containing time and speed.
+#' @param gps_data gps data for weak signal
 #' @return calibrated y-axis accelerometer data
 #' @export
-kalmanfilter_ay <- function(acc_data, speed_data){
+kalmanfilter_ay <- function(acc_data,
+                            speed_data,
+                            gps_data = NULL){
 
-    # library(ikhyd)
-    # acc_data <- get_trip(system.file("extdata", "trip2.csv", package = "ikhyd"),
-    #                      data_option = 2)
-    # with(speed_data, plot(time, speed, type="l"))
-    # acc_data <- stop_correction_acc(acc_data, stop_info)
+    n <- length(acc_data$time)
 
-    stop_info <- stop_detection(acc_data)
+    if (!is.null(gps_data)){
+        weak_info <- rep(FALSE, n)
+        weak_info[gps_data$accuracy_horiz > 5 |
+                      gps_data$accuracy_vert > 5] <- TRUE
+    } else {
+        weak_info <- rep(FALSE, n)
+    }
+
+
+    # for (i in which(weak_info == TRUE)){
+    #     weak_info[max(0, (i - 200)):min((i + 200), n)] <- TRUE
+    # }
+    #
+    # points(acc_data$time[weak_info],
+    #        rep(0, length(acc_data$time[weak_info])),
+    #        col= "red")
+
+    stop_info <- stop_detection(acc_data,
+                                interval_sec = 2,
+                                var_check = 0.0003)
+
     speed_data <- smoothing_speed(speed_data, stop_info)
 
     stop_mom <- 0
@@ -73,6 +92,8 @@ kalmanfilter_ay <- function(acc_data, speed_data){
         stop_mom <- c(stop_mom,
                       stop_info$stop_start[i]:stop_info$stop_end[i])
     }
+
+    acc_data$y[stop_mom] <- 0
 
     n <- length(acc_data$y)
     dt <- with(acc_data, utils::tail(time, -1) - utils::head(time, -1))
@@ -83,12 +104,17 @@ kalmanfilter_ay <- function(acc_data, speed_data){
     # P = 1; h = 2.23694;
     P = 1; h = 1;
 
-    # P = 1; Q = 0.00001; R = 1; h = 2.23694;
+    # flat road
+    # P = 1; Q = 0.0001; R = 1; h = 1;
+
+    # hills
+    # P = 1; Q = 1; R = 1; h = 1;
     # P = 1; Q = 100; R = 0.001; h = 2.23694;
     # plot(estimated_states[2800:2850,1] * 2.23694)
     # i <- 2823
 
     previous_speed <- 0
+    acc_data$y[1] <- 0
 
     i <- 2
     for (i in 2:n){
@@ -97,9 +123,8 @@ kalmanfilter_ay <- function(acc_data, speed_data){
         u <- as.numeric(acc_data$y[i-1])
         z <- as.numeric(speed_data$speed[i] * 0.44704)
 
-        if( i %in% stop_mom){
-            u <- u / 2
-            Q = 1; R = 1;
+        if( weak_info[i] == TRUE){
+            Q = 0.0001; R = 1;
         } else {
             Q = 1; R = 1;
         }
@@ -258,6 +283,27 @@ kalmanfilter_gps <- function(gps_data, acc_data, heading_data){
                x = estimated_states[,1],
                y = estimated_states[,2])
 
+}
+
+
+#' Low pass filter
+#'
+#' @name low_pass
+#' @param input_vec input vector that needs to be filtered
+#' @param alpha constant parameter for low pass rate
+#' @return filtered data
+#' @export
+low_pass <- function(input_vec, alpha){
+    n <- length(input_vec)
+    output_vec <- rep(0, n)
+    for (i in 1:n){
+        if (i == 1){
+            output_vec[i] = input_vec[i]
+        } else {
+            output_vec[i] = (1 - alpha) * output_vec[i-1] + alpha * input_vec[i]
+        }
+    }
+    output_vec
 }
 
 if(getRversion() >= "2.15.1") {

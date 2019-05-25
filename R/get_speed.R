@@ -39,22 +39,26 @@ speed_from_gps <- function(gps_data){
 #' @export
 smoothing_speed <- function(speed_data, stop_info){
 
-    unique_pos <- !duplicated(speed_data$speed)
-
     n <- dim(stop_info)[1]
-    for(i in 1:n){
-        speed_data$speed[stop_info$stop_start[i]:stop_info$stop_end[i]] <- 0
-        unique_pos[stop_info$stop_start[i]:stop_info$stop_end[i]] <- TRUE
+    if (n == 0){
+        return(speed_data)
+    } else {
+        unique_pos <- !duplicated(speed_data$speed)
+
+        for(i in 1:n){
+            speed_data$speed[stop_info$stop_start[i]:stop_info$stop_end[i]] <- 0
+            unique_pos[stop_info$stop_start[i]:stop_info$stop_end[i]] <- TRUE
+        }
+
+        unique_speed <- speed_data[unique_pos,]
+
+        # "fmm", "periodic", "natural", "monoH.FC"
+        s1 <- with(unique_speed, stats::splinefun(time, speed, method = "monoH.FC"))
+
+        data.frame(time = speed_data$time,
+                   speed = s1(speed_data$time),
+                   TrueHeading = speed_data$TrueHeading)
     }
-
-    unique_speed <- speed_data[unique_pos,]
-
-    # "fmm", "periodic", "natural", "monoH.FC"
-    s1 <- with(unique_speed, stats::splinefun(time, speed, method = "monoH.FC"))
-
-    data.frame(time = speed_data$time,
-               speed = s1(speed_data$time),
-               TrueHeading = speed_data$TrueHeading)
 }
 
 
@@ -84,7 +88,7 @@ speed_from_acc <- function(time_vec, acc_vec){
 #' @return a OBD2 data with speed
 #' @export
 OBD2_data <- function(file_path){
-    
+
     text_data <- readLines(file_path)
     speed_part <- text_data[grep("010D", text_data)]
     result <- unlist(strsplit(speed_part, ";"))[-c(1:3)]

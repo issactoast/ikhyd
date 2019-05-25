@@ -10,8 +10,6 @@ draw_map(map_obj, gps_data)
 \item{map_obj}{the object from google map}
 
 \item{gps_data}{GPS data}
-
-\item{end_t}{end time}
 }
 \value{
 ggmap object

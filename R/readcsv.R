@@ -90,8 +90,14 @@ get_trip <- function(data_path,
         data <- dplyr::select(temp_data, Timestamp,
                               dplyr::starts_with("mag"))
         colnames(data) <- c("Timestamp", "x", "y", "z")
+    } else if (data_option == 8){
+        # filter gps data
+        data <- dplyr::select(temp_data, Timestamp,
+                              dplyr::starts_with("RelativeAltitude"),
+                              dplyr::starts_with("Pressure"))
+        colnames(data) <- c("Timestamp", "rel.alt", "pressure")
     }
-
+    
     data <- data %>%
         dplyr::filter(Timestamp >= start_time) %>%
         dplyr::mutate(Timestamp = Timestamp - start_time)

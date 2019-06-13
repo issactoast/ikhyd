@@ -35,3 +35,5 @@ calibrate_telematics <- function(file_path, sync_time = NULL){
     list(acc_data = acc_data,
          gps_data = cali_gps)
 }
+
+

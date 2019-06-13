@@ -28,6 +28,7 @@ convert_time <- function(timelist){
 #' Option 5 : roll, pitch, yaw \cr
 #' Option 6 : speed, heading
 #' Option 7 : magnetometer x, y, z \cr
+#' Option 8 : barometer relative altitude, pressure \cr
 #' @param sync_time this arguments will be used when the recorded data has different time line with video.
 #' @export
 get_trip <- function(data_path,
@@ -97,7 +98,7 @@ get_trip <- function(data_path,
                               dplyr::starts_with("Pressure"))
         colnames(data) <- c("Timestamp", "rel.alt", "pressure")
     }
-    
+
     data <- data %>%
         dplyr::filter(Timestamp >= start_time) %>%
         dplyr::mutate(Timestamp = Timestamp - start_time)

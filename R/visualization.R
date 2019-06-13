@@ -59,20 +59,20 @@ get_tripmap2 <- function(time_insec, gps_data,
 #' @export
 draw_map <- function(map_obj, gps_data){
     mapdraw <- map_obj +
-        ggplot2::geom_point(data = gps_data, aes(x = x, y = y),
+        ggplot2::geom_point(data = gps_data, ggplot2::aes(x = x, y = y),
                             size = 1.5, color = "red") +
-        ggplot2::theme(plot.margin= unit(c(0, 0, 0, 0), "lines"),
-                       axis.title.x=element_blank(),
-                       axis.text.x=element_blank(),
-                       axis.ticks.x=element_blank(),
-                       axis.title.y=element_blank(),
-                       axis.text.y=element_blank(),
-                       axis.ticks.y=element_blank())
+        ggplot2::theme(plot.margin= ggplot2::unit(c(0, 0, 0, 0), "lines"),
+                       axis.title.x=ggplot2::element_blank(),
+                       axis.text.x =ggplot2::element_blank(),
+                       axis.ticks.x=ggplot2::element_blank(),
+                       axis.title.y=ggplot2::element_blank(),
+                       axis.text.y =ggplot2::element_blank(),
+                       axis.ticks.y=ggplot2::element_blank())
 
     if( length(attributes(map_obj)$time_pos) == 1 ){
         mapdraw <- mapdraw +
             ggplot2::geom_point(data = gps_data[attributes(map_obj)$time_pos,],
-                                aes(x = x, y = y),
+                                ggplot2::aes(x = x, y = y),
                                 size = 1.5, color = "yellow")
     }
     mapdraw

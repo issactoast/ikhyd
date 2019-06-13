@@ -81,8 +81,8 @@ kalmanfilter_ay <- function(acc_data,
     #        col= "red")
 
     stop_info <- stop_detection(acc_data,
-                                interval_sec = 2,
-                                var_check = 0.0003)
+                                interval_sec = 1,
+                                var_check = 0.001)
 
     speed_data <- smoothing_speed(speed_data, stop_info)
 
@@ -126,7 +126,7 @@ kalmanfilter_ay <- function(acc_data,
         if( weak_info[i] == TRUE){
             Q = 0.0001; R = 1;
         } else {
-            Q = 1; R = 1;
+            Q = 0.0001; R = 1;
         }
 
         result <- kalmanfilter_1D(est_data, u, A, B, z, h,

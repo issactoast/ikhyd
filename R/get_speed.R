@@ -24,7 +24,7 @@ speed_from_gps <- function(gps_data){
 
     delta_t <- with(gps_data, utils::tail(time, -1) - utils::head(time, -1))
 
-    gps_speed <- apply(tempD, 1, convertTOmeter) #/ delta_t
+    gps_speed <- apply(tempD, 1, convertTOmeter) / delta_t
     gps_speed <- c(0, gps_speed) * 2.27
     data.frame(time = gps_data$time , speed = gps_speed)
 }
@@ -145,7 +145,85 @@ OBD2gps_data <- function(file_path){
     attr(gps_data, "start_time") <- start_time
     gps_data
 }
+#' Find big difference in derivative with same sampling rate data
+#'
+#' @name indicate_error
+#' @param my_vector vector needed to be checked out
+#' @param threshold threshold value
+#' @return an index vector whose valuse is False at the invalid position
+indicate_error <- function(my_vector, threshold){
+    n <- length(my_vector)
+    index_vec <- rep(TRUE, n)
 
+    for (i in 2:n){
+        if (abs(my_vector[i] - my_vector[i-1]) > threshold){
+            index_vec[i] <- FALSE
+        }
+    }
+    index_vec
+}
+
+#' Vertical speed from Barometer data
+#' @name vspeed_from_baro
+#' @param alt_data the altitude data
+#' @return altitude data with vertical speed
+#' @export
+vspeed_from_baro <- function(alt_data){
+    sub_data <- alt_data[c(rep(F, 24), T), ]
+
+    ds <- with(sub_data, tail(rel.alt, -1) - head(rel.alt, -1))
+    vert_velocity <- c(0, ds)
+    my_index <- indicate_error(vert_velocity, 0.4)
+    sub_data$vert_vel <- vert_velocity
+
+    sub_data <- sub_data[my_index,]
+
+    result <- with(sub_data,
+                   stats::smooth.spline(
+                       time, vert_vel,
+                       df = ceiling(length(vert_vel) * 0.7)))
+    alt_data$pre_vert_vel <- with(sub_data,
+                                  stats::predict(result, alt_data$time)$y) * 2.23694
+    alt_data
+}
+
+#' Spline obd speed data from OBD2 device
+#'
+#' @name speed_from_obd
+#' @param obd_data OBD2 data
+#' @param speed_data the speed data that you want to sync, which consists of time and speed
+#' @return a estimated speed using spline from OBD2 speed data
+#' @export
+speed_from_obd <- function(obd_data, speed_data){
+
+    unique_time <- unique(obd_data$time)
+    n <- length(unique_time)
+    index <- rep(0, n)
+
+    for (i in 1:n){
+        index[i] <- which(obd_data$time == unique_time[i])
+    }
+
+    obd_data <- obd_data[index,]
+
+    s1 <- with(obd_data,
+               stats::splinefun(time, speed,
+                                method = "monoH.FC"))
+
+    obd_speed = s1(speed_data$time)
+
+    # Calibration
+    a <- which.max(speed_data$speed > 0)
+    b <- which.max(obd_speed > 0)
+    if (a > b){
+        obd_speed <- utils::head(c(rep(0, abs(a-b)), obd_speed), -abs(a - b))
+    } else if ( a < b){
+        obd_speed <- utils::tail(c(obd_speed, rep(0, abs(a-b))), -abs(a - b))
+    }
+
+    data.frame(time = speed_data$time,
+               speed = obd_speed)
+}
 
 if(getRversion() >= "2.15.1") {
     utils::globalVariables(c("x", "y"))

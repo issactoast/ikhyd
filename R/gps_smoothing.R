@@ -327,6 +327,23 @@ stop_detection <- function(acc_data,
                legnth_sec = (result[,2] - result[,1])/25 )
 }
 
+#' Making stop moments index from stop information
+#'
+#' @name get_stopvec
+#' @param stop_info stop information
+#' @return an index stop vector
+#' @export
+get_stopvec <- function(stop_info){
+    stop_mom <- numeric(0)
+    n <- dim(stop_info)[1]
+    for(i in 1:n){
+        stop_mom <- c(stop_mom,
+                      stop_info$stop_start[i]:stop_info$stop_end[i])
+    }
+    stop_mom
+}
+
+
 #' Detecting stops from accelerometer y-axis using regresion
 #'
 #' @name stop_detection2

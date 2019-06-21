@@ -225,6 +225,22 @@ speed_from_obd <- function(obd_data, speed_data){
                speed = obd_speed)
 }
 
+#' Calculate acceleration from OBD2 data
+#'
+#' @name acc_from_obd
+#' @param obd_speed obd_speed which is splined already
+#' @return a estimated longitudinal acceleration from OBD2 speed data
+#' @export
+acc_from_obd <- function(obd_speed){
+    dt <- utils::tail(obd_speed$time, -1) - utils::head(obd_speed$time, -1)
+
+    # dv in m/s unit
+    dv <- utils::tail(obd_speed$speed * 0.44704, -1) - utils::head(obd_speed$speed * 0.44704, -1)
+
+    obd_speed$dv_dt <- c(0, dv / dt)
+    obd_speed
+}
+
 if(getRversion() >= "2.15.1") {
     utils::globalVariables(c("x", "y"))
 }

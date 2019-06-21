@@ -306,6 +306,202 @@ low_pass <- function(input_vec, alpha){
     output_vec
 }
 
+#' kalman filter with road grade for lon. accelerometer
+#'
+#' @name kalmanfilter_withalpha
+#' @param acc_data acc data
+#' @param speed_data speed data from gps
+#' @param angle_data angle data from gyro
+#' @param alt_data altitude data from baro
+#' @return filtered acc data with road grade
+#' @export
+kalmanfilter_withalpha <- function(acc_data,
+                                   speed_data,
+                                   angle_data,
+                                   alt_data){
+
+    alpha <- angle_data$Pitch.rads.
+    dt <- utils::tail(acc_data$time, -1) -
+        utils::head(acc_data$time, -1)
+
+    n <- dim(acc_data)[1]
+    estimated_states <- matrix(0, nrow = n, ncol = 2)
+
+    estimated_states[1,] <- as.numeric(c(0, alpha[1]))
+
+    past_speed <- 0
+    alpha_est <- alpha[1]
+    est_data <- as.numeric(estimated_states[1,])
+    acc_y <- rep(0, n)
+
+    stop_info <- stop_detection(acc_data, interval_sec = 1)
+    stop_vec <- get_stopvec(stop_info)
+
+    H <- diag(2); P <- diag(2)
+    R <- matrix(c(1, 0,
+                  0, 1), nrow = 2, byrow = T)
+    Q <- matrix(c(0.001, 0,
+                  0, 0.1), nrow = 2, byrow = T)
+
+    # Q <- matrix(c(0.001, 0,
+    #               0, 1), nrow = 2, byrow = T)
+
+    i <- 2
+
+    for (i in 2:n){
+        A <- matrix(c(1, -9.81865 * dt[i-1],
+                      0, 1), ncol = 2, byrow = TRUE)
+        B <- matrix(c(dt[i-1], 0), ncol = 1)
+        u <- as.numeric(acc_data$y[i])
+
+        if (abs(alpha[i] - est_data[2]) > 0.005){
+            alpha_est <- est_data[2]
+        } else {
+            alpha_est <- alpha[i]
+        }
+
+        if (i %in% stop_vec){
+            z <- as.numeric(c(0, alpha[i]))
+            R <- diag(2) * 0.001
+        } else {
+            z <- as.numeric(c(speed_data$speed[i] * 0.44704, alpha_est))
+            R <- matrix(c(1, 0,
+                          0, 0.1), nrow = 2, byrow = T)
+        }
+
+        result <- kalmanfilter(est_data, P,
+                               z, u, A, B, H, Q, R)
+
+        acc_y[i] <- (result$xhat[1] - past_speed) / dt[i]
+        past_speed <- result$xhat[1]
+
+        alpha_est <- (acc_data$y[i] - acc_y[i]) / 9.81865
+        alpha_est <- est_data[2] * 0.98 + 0.01 * result$xhat[2] +
+            alpha_est * 0.01
+
+        result$xhat[2] <- alpha_est
+
+        est_data <- as.numeric(result$xhat)
+
+        P <- result$Phat
+        estimated_states[i,] <- est_data
+    }
+
+    data.frame(time = acc_data$time,
+               speed = estimated_states[,1] * 2.23694,
+               alpha = estimated_states[,2],
+               acc_y = acc_y)
+}
+
+#' kalman filter with road grade for lon. accelerometer
+#'
+#' @name kalmanfilter_accfirst
+#' @param acc_data acc data
+#' @param speed_data speed data from gps
+#' @param angle_data angle data from gyro
+#' @param alt_data altitude data from baro
+#' @return filtered acc data with road grade
+#' @export
+kalmanfilter_accfirst <- function(acc_data,
+                               speed_data,
+                               angle_data,
+                               alt_data,
+                               gps_data = NULL){
+
+    alpha <- angle_data$Pitch.rads.
+    dt <- utils::tail(acc_data$time, -1) -
+        utils::head(acc_data$time, -1)
+
+    n <- length(acc_data$time)
+
+    if (!is.null(gps_data)){
+        weak_info <- rep(FALSE, n)
+        weak_info[gps_data$accuracy_horiz > 5 |
+                      gps_data$accuracy_vert > 5] <- TRUE
+    } else {
+        weak_info <- rep(FALSE, n)
+    }
+
+    estimated_states <- matrix(0, nrow = n, ncol = 3)
+
+    estimated_states[1,] <- as.numeric(c(0, alpha[1], 0))
+
+    past_speed <- 0
+    alpha_est <- alpha[1]
+    est_data <- as.numeric(c(0, alpha[1]))
+    acc_y <- rep(0, n)
+
+    stop_info <- stop_detection(acc_data, interval_sec = 1)
+    stop_vec <- get_stopvec(stop_info)
+
+    H <- diag(3); P <- diag(2)
+
+    i <- 2
+
+    for (i in 2:n){
+        if (weak_info[i]){
+            R <- matrix(c(10, 0, 0,
+                          0, 10, 0,
+                          0, 0, 10), nrow = 3, byrow = T)
+
+            Q <- matrix(c(0.001, 0, 0,
+                          0, 0.001, 0,
+                          0, 0, 0.001), nrow = 3, byrow = T)
+        } else {
+            R <- matrix(c(1, 0, 0,
+                          0, 1, 0,
+                          0, 0, 1), nrow = 3, byrow = T)
+
+            Q <- matrix(c(0.01, 0, 0,
+                          0, 0.01, 0,
+                          0, 0, 0.01), nrow = 3, byrow = T)
+
+        }
+
+        A <- matrix(c(1, -9.81865 * dt[i-1],
+                      0, 1,
+                      0, -9.81865), ncol = 2, byrow = TRUE)
+        B <- matrix(c(dt[i-1], 0, 1), ncol = 1)
+        u <- as.numeric(acc_data$y[i])
+
+        if (abs(alpha[i] - est_data[2]) > 0.005){
+            alpha_est <- est_data[2]
+        } else {
+            alpha_est <- alpha[i]
+        }
+
+        if (i %in% stop_vec){
+            z <- as.numeric(c(0, alpha[i], 0))
+            R <- diag(3) * 0.001
+        } else {
+            z <- as.numeric(c(speed_data$speed[i] * 0.44704, alpha_est, speed_data$a_y[i]))
+        }
+
+        result <- kalmanfilter(est_data, P,
+                               z, u, A, B, H, Q, R)
+
+        acc_y[i] <- result$xhat[3] * 0.2 + acc_y[i-1] * 0.8
+        past_speed <- result$xhat[1]
+
+        alpha_est <- (acc_data$y[i] - acc_y[i]) / 9.81865
+        alpha_est <- est_data[2] * 0.98 + 0.01 * result$xhat[2] +
+            alpha_est * 0.01
+
+        result$xhat[2] <- alpha_est
+
+        est_data <- as.numeric(result$xhat[1:2])
+
+        P <- result$Phat[1:2, 1:2]
+        estimated_states[i,] <- result$xhat
+    }
+
+    data.frame(time = acc_data$time,
+               speed = estimated_states[,1] * 2.23694,
+               alpha = estimated_states[,2],
+               acc_y = estimated_states[,3])
+}
+
+
 if(getRversion() >= "2.15.1") {
     utils::globalVariables(c("time", "x", "y",
                              "speed", "TrueHeading", "gyroZ.rad.s.",

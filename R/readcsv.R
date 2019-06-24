@@ -107,30 +107,6 @@ get_trip <- function(data_path,
 }
 
 
-#' altitude data length adjustment.
-#'
-#' @name adjust_alt
-#' @param time_data a data which has time column
-#' @param alt_data an altidute data
-#' @return length adjusted alt data
-#' @export
-adjust_alt <- function(time_data, alt_data){
-    alt_data <- alt_data %>%
-        mutate(time = time - 3) %>%
-        filter(time >= 0)
-
-    n <- length(alt_data$rel.alt)
-    m <- length(time_data$time)
-
-    alt_data <- data.frame(time = time_data$time,
-                           rel.alt = c(alt_data$rel.alt,
-                                       rep(alt_data$rel.alt[n], m-n)),
-                           pressure = c(alt_data$pressure,
-                                        rep(alt_data$pressure[n], m-n)))
-    alt_data
-}
-
-
 if(getRversion() >= "2.15.1") {
     temp_data <- utils::read.csv(system.file("extdata", "sample_trip.csv", package = "ikhyd"),
                                  header = TRUE, fill = TRUE)

@@ -393,6 +393,53 @@ kalmanfilter_withalpha <- function(acc_data,
                acc_y = acc_y)
 }
 
+
+
+#' kalman filter with road grade for lon. accelerometer
+#'
+#' @name kalmanfilter_roadgrade
+#' @param angle_data angle data from gyro
+#' @return filtered road grade
+#' @export
+kalmanfilter_roadgrade <- function(angle_data){
+
+    n <- length(angle_data$time)
+
+    estimated_alpha <- rep(0, n)
+
+    estimated_alpha[1] <- angle_data$Pitch.rads.[1]
+
+    est_data <- mean(angle_data$Pitch.rads.[1:50])
+
+    P = 1; Q = 0.01; R = 1; h = 1;
+    A = 1; B = 0; u = 1;
+
+    previous_alpha <- 0
+
+    i <- 2
+    for (i in 2:n){
+        z <- angle_data$Pitch.rads.[i]
+        prev_th <- est_data
+
+        if ((z - prev_th) / abs(prev_th) > 0.1) {
+            z <- 0.98 * est_data + 0.02 * z
+            # z <- 1.01 * est_data
+        } else if ((z - prev_th) / abs(prev_th) < -0.1) {
+            z <- 0.98 * est_data + 0.02 * z
+            # z <- 0.99 * est_data
+        }
+
+        result <- kalmanfilter_1D(est_data, u, A, B, z, h,
+                                  P, Q, R)
+
+        est_data <- as.numeric(result$xhat)
+        P <- result$Phat
+        estimated_alpha[i] <- est_data
+    }
+
+    as.numeric(estimated_alpha)
+}
+
 #' kalman filter with road grade for lon. accelerometer
 #'
 #' @name kalmanfilter_accfirst
@@ -400,13 +447,21 @@ kalmanfilter_withalpha <- function(acc_data,
 #' @param speed_data speed data from gps
 #' @param angle_data angle data from gyro
 #' @param alt_data altitude data from baro
+#' @param roadgrade road grad estimation
+#' @param gps_data gps_data
 #' @return filtered acc data with road grade
 #' @export
 kalmanfilter_accfirst <- function(acc_data,
                                speed_data,
                                angle_data,
                                alt_data,
+                               roadgrade,
                                gps_data = NULL){
+
+    # with(speed_data, plot(time, low_pass(a_y, 0.05),
+    #                       ylim = c(-4, 4), type="l"))
+
+    speed_data$a_y <- low_pass(speed_data$a_y, 0.05)
 
     alpha <- angle_data$Pitch.rads.
     dt <- utils::tail(acc_data$time, -1) -
@@ -440,9 +495,9 @@ kalmanfilter_accfirst <- function(acc_data,
 
     for (i in 2:n){
         if (weak_info[i]){
-            R <- matrix(c(10, 0, 0,
-                          0, 10, 0,
-                          0, 0, 10), nrow = 3, byrow = T)
+            R <- matrix(c(1, 0, 0,
+                          0, 1, 0,
+                          0, 0, 1), nrow = 3, byrow = T)
 
             Q <- matrix(c(0.001, 0, 0,
                           0, 0.001, 0,
@@ -472,7 +527,7 @@ kalmanfilter_accfirst <- function(acc_data,
 
         if (i %in% stop_vec){
             z <- as.numeric(c(0, alpha[i], 0))
-            R <- diag(3) * 0.001
+            R <- diag(3) * 0.0001
         } else {
             z <- as.numeric(c(speed_data$speed[i] * 0.44704, alpha_est, speed_data$a_y[i]))
         }
@@ -480,12 +535,12 @@ kalmanfilter_accfirst <- function(acc_data,
         result <- kalmanfilter(est_data, P,
                                z, u, A, B, H, Q, R)
 
-        acc_y[i] <- result$xhat[3] * 0.2 + acc_y[i-1] * 0.8
+        acc_y[i] <- result$xhat[3]
         past_speed <- result$xhat[1]
 
-        alpha_est <- (acc_data$y[i] - acc_y[i]) / 9.81865
-        alpha_est <- est_data[2] * 0.98 + 0.01 * result$xhat[2] +
-            alpha_est * 0.01
+        # alpha_est <- (acc_data$y[i] - acc_y[i]) / 9.81865
+        # alpha_est <- est_data[2] * 0.98 + 0.01 * result$xhat[2] +
+        #     alpha_est * 0.01
 
         result$xhat[2] <- alpha_est
 

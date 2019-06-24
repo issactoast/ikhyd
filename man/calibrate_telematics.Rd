@@ -12,7 +12,7 @@ calibrate_telematics(file_path, sync_time = NULL)
 \item{sync_time}{sync_time}
 }
 \value{
-calibrated GPS data and accelerometer x-axis and y-axis data
+calibrated long. and lat. acceleration of the vehicle
 }
 \description{
 Calibarate telematics data

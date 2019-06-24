@@ -241,6 +241,30 @@ acc_from_obd <- function(obd_speed){
     obd_speed
 }
 
+#' altitude data length adjustment.
+#'
+#' @name adjust_alt
+#' @param time_data a data which has time column
+#' @param alt_data an altidute data
+#' @return length adjusted alt data
+#' @export
+adjust_alt <- function(time_data, alt_data){
+    alt_data <- alt_data %>%
+        dplyr::mutate(time = time - 3) %>%
+        dplyr::filter(time >= 0)
+
+    n <- length(alt_data$rel.alt)
+    m <- length(time_data$time)
+
+    alt_data <- data.frame(time = time_data$time,
+                           rel.alt = c(alt_data$rel.alt,
+                                       rep(alt_data$rel.alt[n], m-n)),
+                           pressure = c(alt_data$pressure,
+                                        rep(alt_data$pressure[n], m-n)))
+    alt_data
+}
+
+
 if(getRversion() >= "2.15.1") {
     utils::globalVariables(c("x", "y"))
 }

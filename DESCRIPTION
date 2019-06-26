@@ -16,6 +16,7 @@ Imports:
     anytime,
     lubridate,
     ggplot2,
-    ggmap
+    ggmap,
+    RColorBrewer
 Suggests: tidyverse
 RoxygenNote: 6.1.1

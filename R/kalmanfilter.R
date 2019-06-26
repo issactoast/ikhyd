@@ -507,9 +507,9 @@ kalmanfilter_accfirst <- function(acc_data,
                           0, 1, 0,
                           0, 0, 1), nrow = 3, byrow = T)
 
-            Q <- matrix(c(0.01, 0, 0,
-                          0, 0.01, 0,
-                          0, 0, 0.01), nrow = 3, byrow = T)
+            Q <- matrix(c(1, 0, 0,
+                          0, 1, 0,
+                          0, 0, 1), nrow = 3, byrow = T)
 
         }
 
@@ -519,15 +519,20 @@ kalmanfilter_accfirst <- function(acc_data,
         B <- matrix(c(dt[i-1], 0, 1), ncol = 1)
         u <- as.numeric(acc_data$y[i])
 
-        if (abs(alpha[i] - est_data[2]) > 0.005){
-            alpha_est <- est_data[2]
-        } else {
-            alpha_est <- alpha[i]
-        }
+        # if (abs(alpha[i] - est_data[2]) > 0.005){
+        #     alpha_est <- est_data[2]
+        # } else {
+        #     alpha_est <- alpha[i]
+        # }
+
+        alpha_est <- alpha[i]
 
         if (i %in% stop_vec){
-            z <- as.numeric(c(0, alpha[i], 0))
-            R <- diag(3) * 0.0001
+            z <- as.numeric(c(0, alpha[i], speed_data$a_y[i]))
+            R <- matrix(c(0.001, 0, 0,
+                          0, 0.001, 0,
+                          0, 0, 1), nrow = 3, byrow = T)
+
         } else {
             z <- as.numeric(c(speed_data$speed[i] * 0.44704, alpha_est, speed_data$a_y[i]))
         }
@@ -538,11 +543,11 @@ kalmanfilter_accfirst <- function(acc_data,
         acc_y[i] <- result$xhat[3]
         past_speed <- result$xhat[1]
 
-        # alpha_est <- (acc_data$y[i] - acc_y[i]) / 9.81865
-        # alpha_est <- est_data[2] * 0.98 + 0.01 * result$xhat[2] +
-        #     alpha_est * 0.01
+        alpha_est <- (acc_data$y[i] - acc_y[i]) / 9.81865
+        alpha_est <- est_data[2] * 0.98 + 0.01 * result$xhat[2] +
+            alpha_est * 0.01
 
-        result$xhat[2] <- alpha_est
+        # result$xhat[2] <- alpha_est
 
         est_data <- as.numeric(result$xhat[1:2])
 

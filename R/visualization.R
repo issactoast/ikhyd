@@ -77,3 +77,82 @@ draw_map <- function(map_obj, gps_data){
     }
     mapdraw
 }
+
+#' Draw a heatmap for telematics data
+#'
+#' @name drawHeatmap
+#' @param telematics_data telematics data with a_lon, a_lat coloums
+#' @param drawRange vector for drawing range of heat map
+#' @return telematics heatmap drawn by ggplot
+#' @export
+drawHeatmap <- function(telematics_data,
+                        drawRange= c(4, 4)){
+
+    # Color housekeeping
+    rf <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(11,'Spectral')))
+    r <- rf(32)
+
+    # heatmap_data
+    heatmap_data <- dplyr::filter(telematics_data,
+                           (abs(a_lon) < drawRange[1]) &
+                               (abs(a_lat) < drawRange[2]) )
+
+    p <- ggplot2::ggplot(data = heatmap_data,
+                         ggplot2::aes(x = a_lat, y = a_lon)) +
+        ggplot2::xlim(-drawRange[1], drawRange[1]) +
+        ggplot2::ylim(-drawRange[2], drawRange[2]) +
+        # Add estimated density
+        ggplot2::geom_point(fill = "lightgray",
+                   size = 0.5,
+                   alpha = 0.1)
+
+    p <- p + ggplot2::stat_bin2d(bins=200) +
+        ggplot2::theme_light() +
+        ggplot2::theme(legend.position = "none") +
+        ggplot2::scale_fill_gradientn(colours = r, trans = "log") +
+        ggplot2::labs(y = "Longitudinal acceleration (m / s^2)",
+             x = "Lateral acceleration (m / s^2)")
+    p
+}
+
+
+#' Preparing a telematics data from GPS data for heatmap drawing
+#'
+#' @name telematics_data_fromGPS
+#' @param gps_data GPS data
+#' @param speed_data Speed data
+#' @return telematics data object for drawing heatmap
+#' @export
+telematics_data_fromGPS <- function(gps_data, speed_data){
+
+    n <- floor(max(gps_data$time))
+    index_pickup <- floor(seq(1, length(gps_data$time),
+                              length.out = n+1))
+
+    gps_data <- gps_data[index_pickup,]
+    speed_data <- speed_data[index_pickup,]
+
+    my_data <- cbind.data.frame(gps_data,
+                                speed_data[,c("speed", "TrueHeading")])
+
+    dt <- utils::tail(my_data$time, -1) - utils::head(my_data$time, -1)
+    my_data$accel <- c(0, (utils::tail(my_data$speed, -1) -
+                               utils::head(my_data$speed, -1)) / dt)
+
+    # latacc
+    dangle <- utils::tail(my_data$TrueHeading, -1) -
+        utils::head(my_data$TrueHeading, -1)
+    dangle[dangle > 180] <- dangle[dangle > 180] - 360
+    dangle[dangle < -180] <- dangle[dangle < -180] + 360
+    omega <- dangle * pi / 180 # radian
+    my_data$latacc <- c(0, my_data$speed[-1] * omega)
+
+    data.frame(time = my_data$time,
+               a_lon = my_data$accel,
+               a_lat = my_data$latacc)
+}
+
+
+if(getRversion() >= "2.15.1") {
+    utils::globalVariables(c("a_lon", "a_lat"))
+}

@@ -352,7 +352,7 @@ kalmanfilter_withalpha <- function(acc_data,
         A <- matrix(c(1, -9.81865 * dt[i-1],
                       0, 1), ncol = 2, byrow = TRUE)
         B <- matrix(c(dt[i-1], 0), ncol = 1)
-        u <- as.numeric(acc_data$y[i])
+        u <- as.numeric(acc_data$y[i-1])
 
         if (abs(alpha[i] - est_data[2]) > 0.005){
             alpha_est <- est_data[2]

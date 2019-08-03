@@ -4,15 +4,17 @@
 \alias{drawHeatmap}
 \title{Draw a heatmap for telematics data}
 \usage{
-drawHeatmap(telematics_data, drawRange = c(4, 4))
+drawHeatmap(telematics_data, drawRange = c(4, 4), speedbucket = NULL)
 }
 \arguments{
 \item{telematics_data}{telematics data with a_lon, a_lat coloums}
 
 \item{drawRange}{vector for drawing range of heat map}
+
+\item{speedbucket}{vector of speed bucket for drawing range of heat map}
 }
 \value{
-telematics heatmap drawn by ggplot
+telematics lon-lat density w.r.t speed bucket drawn by ggplot
 }
 \description{
 Draw a heatmap for telematics data

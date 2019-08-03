@@ -83,16 +83,26 @@ draw_map <- function(map_obj, gps_data){
 #' @name drawHeatmap
 #' @param telematics_data telematics data with a_lon, a_lat coloums
 #' @param drawRange vector for drawing range of heat map
-#' @return telematics heatmap drawn by ggplot
+#' @param speedbucket vector of speed bucket for drawing range of heat map
+#' @return telematics lon-lat density w.r.t speed bucket drawn by ggplot
 #' @export
 drawHeatmap <- function(telematics_data,
-                        drawRange= c(4, 4)){
+                        drawRange= c(4, 4),
+                        speedbucket = NULL){
 
     # Color housekeeping
     rf <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(11,'Spectral')))
     r <- rf(32)
 
     # heatmap_data
+    telematics_data$speed <- with(telematics_data, speed_from_acc(time, a_lon))
+
+    if (!is.null(speedbucket)){
+        telematics_data <- dplyr::filter(telematics_data,
+                                         (speed >= speedbucket[1]) &
+                                             (speed <= speedbucket[2]) )
+    }
+
     heatmap_data <- dplyr::filter(telematics_data,
                            (abs(a_lon) < drawRange[1]) &
                                (abs(a_lat) < drawRange[2]) )
@@ -112,6 +122,45 @@ drawHeatmap <- function(telematics_data,
         ggplot2::scale_fill_gradientn(colours = r, trans = "log") +
         ggplot2::labs(y = "Longitudinal acceleration (m / s^2)",
              x = "Lateral acceleration (m / s^2)")
+    p
+}
+
+#' Draw a v-a heatmap for telematics data
+#'
+#' @name draw_vaHeatmap
+#' @param telematics_data telematics data with a_lon, a_lat coloums
+#' @param drawRange vector for drawing range of heat map
+#' @return telematics heatmap drawn by ggplot
+#' @export
+draw_vaHeatmap <- function(telematics_data,
+                        drawRange= c(0, 80)){
+
+    # Color housekeeping
+    rf <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(11,'Spectral')))
+    r <- rf(32)
+
+    # heatmap_data
+    telematics_data$speed <- with(telematics_data, speed_from_acc(time, a_lon))
+
+    heatmap_data <- dplyr::filter(telematics_data,
+                                  (speed > drawRange[1]) &
+                                      (speed <= drawRange[2]) )
+
+    p <- ggplot2::ggplot(data = heatmap_data,
+                         ggplot2::aes(x = speed, y = a_lon)) +
+        ggplot2::xlim(drawRange[1], drawRange[2]) +
+        ggplot2::ylim(-4, 4) +
+        # Add estimated density
+        ggplot2::geom_point(fill = "lightgray",
+                            size = 0.5,
+                            alpha = 0.1)
+
+    p <- p + ggplot2::stat_bin2d(bins=100) +
+        ggplot2::theme_light() +
+        ggplot2::theme(legend.position = "none") +
+        ggplot2::scale_fill_gradientn(colours = r, trans = "log") +
+        ggplot2::labs(y = "Longitudinal acceleration (m / s^2)",
+                      x = "Speed (mph)")
     p
 }
 
@@ -144,7 +193,7 @@ telematics_data_fromGPS <- function(gps_data, speed_data){
         utils::head(my_data$TrueHeading, -1)
     dangle[dangle > 180] <- dangle[dangle > 180] - 360
     dangle[dangle < -180] <- dangle[dangle < -180] + 360
-    omega <- dangle * pi / 180 # radian
+    omega <- dangle * pi / 180 / dt # radian
     my_data$latacc <- c(0, my_data$speed[-1] * omega)
 
     data.frame(time = my_data$time,

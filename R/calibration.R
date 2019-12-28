@@ -40,11 +40,8 @@ calibrate_telematics <- function(file_path, sync_time = NULL){
     # Get lat. acc via gyro, acc, and estimated speed
     acc_data <- dplyr::select(acc_data, -time) %>%
         cbind.data.frame(gyro_data) %>%
-        # x + with(angle_data, 9.81865 * Roll.rads.)
-        # dplyr::mutate(lat_acc = - 0.44704 * speed * gyroZ.rad.s.) %>%
-        # - 0.44704 * speed * gyroZ.rad.s.
         dplyr::mutate(lat_acc = x +
-                          sin(with(angle_data, 9.81865 * Roll.rads.))) %>%
+                        sin(with(angle_data, 9.81865 * Roll.rads.))) %>%
         dplyr::select(time, x, y, z, lon_acc, lat_acc, speed)
 
     data.frame(time = acc_data$time,

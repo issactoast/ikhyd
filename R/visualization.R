@@ -198,7 +198,8 @@ telematics_data_fromGPS <- function(gps_data, speed_data){
 
     data.frame(time = my_data$time,
                a_lon = my_data$accel,
-               a_lat = my_data$latacc)
+               a_lat = my_data$latacc,
+               omega = c(0, omega))
 }
 
 

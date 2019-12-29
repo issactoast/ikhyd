@@ -178,23 +178,24 @@ telematics_data_fromGPS <- function(gps_data, speed_data){
     index_pickup <- floor(seq(1, length(gps_data$time),
                               length.out = n+1))
 
-    gps_data <- gps_data[index_pickup,]
-    speed_data <- speed_data[index_pickup,]
+    gps_data_temp <- gps_data[index_pickup,]
+    speed_data_temp <- speed_data[index_pickup,]
 
-    my_data <- cbind.data.frame(gps_data,
-                                speed_data[,c("speed", "TrueHeading")])
+    my_data <- cbind.data.frame(gps_data_temp,
+                                speed_data_temp[,c("speed", "TrueHeading")])
 
     dt <- utils::tail(my_data$time, -1) - utils::head(my_data$time, -1)
     my_data$accel <- c(0, (utils::tail(my_data$speed, -1) -
                                utils::head(my_data$speed, -1)) / dt)
 
     # latacc
-    dangle <- utils::head(my_data$TrueHeading, -1) -
-        utils::tail(my_data$TrueHeading, -1)
+    dangle <- utils::tail(my_data$TrueHeading, -1) -
+        utils::head(my_data$TrueHeading, -1)
+
     dangle[dangle > 180] <- dangle[dangle > 180] - 360
     dangle[dangle < -180] <- dangle[dangle < -180] + 360
     omega <- dangle * pi / 180 / dt # radian
-    my_data$latacc <- c(0, my_data$speed[-1] * omega)
+    my_data$latacc <- c(0, my_data$speed[-1] * 0.44704 * omega)
 
     data.frame(time = my_data$time,
                a_lon = my_data$accel,

@@ -189,8 +189,8 @@ telematics_data_fromGPS <- function(gps_data, speed_data){
                                utils::head(my_data$speed, -1)) / dt)
 
     # latacc
-    dangle <- utils::tail(my_data$TrueHeading, -1) -
-        utils::head(my_data$TrueHeading, -1)
+    dangle <- utils::head(my_data$TrueHeading, -1) -
+        utils::tail(my_data$TrueHeading, -1)
     dangle[dangle > 180] <- dangle[dangle > 180] - 360
     dangle[dangle < -180] <- dangle[dangle < -180] + 360
     omega <- dangle * pi / 180 / dt # radian

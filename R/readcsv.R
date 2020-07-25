@@ -86,6 +86,8 @@ get_trip <- function(data_path,
         # filter gps data
         data <- dplyr::select(temp_data, Timestamp,
                               Speed.m.s., TrueHeading)
+        # there is no negative speed :)
+        data$Speed.m.s.[data$Speed.m.s. < 0] <- 0
         data$Speed.m.s. <- data$Speed.m.s. * 2.23694
         colnames(data)[2] <- "speed"
     } else if (data_option == 7){

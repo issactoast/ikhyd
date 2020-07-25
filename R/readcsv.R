@@ -37,10 +37,12 @@ get_trip <- function(data_path,
 
     temp_data <- utils::read.csv(data_path, header = TRUE, fill = TRUE)
 
-    temp_time <- as.character(temp_data$Timestamp) %>% strsplit(" ") %>% unlist
-    temp_time <- temp_time[seq(2, length(temp_time), by = 2)] %>% strsplit(":")
-
-    temp_data$Timestamp <- lapply(temp_time, convert_time) %>% unlist()
+    if (temp_data$Timestamp[1] != 0){
+        temp_time <- as.character(temp_data$Timestamp) %>% strsplit(" ") %>% unlist
+        temp_time <- temp_time[seq(2, length(temp_time), by = 2)] %>% strsplit(":")
+        
+        temp_data$Timestamp <- lapply(temp_time, convert_time) %>% unlist()
+    }    
 
     if (is.null(sync_time)){
         start_time <- temp_data$Timestamp[1]

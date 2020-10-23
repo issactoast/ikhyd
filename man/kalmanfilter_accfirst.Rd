@@ -4,8 +4,14 @@
 \alias{kalmanfilter_accfirst}
 \title{kalman filter with road grade for lon. accelerometer}
 \usage{
-kalmanfilter_accfirst(acc_data, speed_data, angle_data, alt_data,
-  roadgrade, gps_data = NULL)
+kalmanfilter_accfirst(
+  acc_data,
+  speed_data,
+  angle_data,
+  alt_data,
+  roadgrade,
+  gps_data = NULL
+)
 }
 \arguments{
 \item{acc_data}{acc data}

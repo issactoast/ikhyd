@@ -15,7 +15,7 @@ get_obd_trip <- function(file_path){
     
     # sync_obd_with_gps()
     speed_data_obd <- speed_from_obd(speed_data_obd, speed_data)
-    
+
     # possible lag
     loss_fcn <- function(lag, speed_data_obd, speed_data){
         start_time <- lag
@@ -44,7 +44,7 @@ get_obd_trip <- function(file_path){
         result[i] <- loss_fcn(lag, speed_data_obd, speed_data)
         i <- i + 1
     }
-    
+
     lag <- plag[which.min(result)]
     
     if(lag >= 0){
@@ -58,9 +58,3 @@ get_obd_trip <- function(file_path){
     }
     speed_data_obd
 }
-
-# if(getRversion() >= "2.15.1") {
-#     utils::globalVariables(c("time", "x", "y",
-#                              "speed", "TrueHeading", "gyroZ.rad.s.",
-#                              "angle_x", "angle_y", "a_est", "a_nor"))
-# }

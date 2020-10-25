@@ -1,3 +1,33 @@
+#' Load telematics data set
+#'
+#' @name load_telematic_data
+#' @param file_path file path to the telematics route
+#' @param all_in_one if true, load all telematics data in a list, 
+#' otherwise will give you the dataframe 
+#' @param ... you can access to the arguments in get_trip() when all_in_one = FALSE
+#' @return seconds corresponds with the input hour
+#' @export
+load_telematic_data <- function(file_path, all_in_one = FALSE, ...){
+    if (all_in_one){
+        gps_data   <- get_trip(file_path, data_option = 1)
+        acc_data   <- get_trip(file_path, data_option = 2)
+        lacc_data  <- get_trip(file_path, data_option = 3)
+        gyro_data  <- get_trip(file_path, data_option = 4)
+        angle_data <- get_trip(file_path, data_option = 5)
+        speed_data <- get_trip(file_path, data_option = 6)
+        result <- list(gps_data = gps_data,
+                       acc_data = acc_data,
+                       lacc_data = lacc_data,
+                       gyro_data = gyro_data,
+                       angle_data = angle_data,
+                       speed_data = speed_data)
+        return(result)
+    } else {
+        result <- get_trip(file_path, ...)
+        return(result)
+    }
+}
+
 #' convert time stamp into seconds
 #'
 #' @name convert_time
@@ -26,7 +56,7 @@ convert_time <- function(timelist){
 #' Option 3 : linacc xyz \cr
 #' Option 4 : gyro xyz \cr
 #' Option 5 : roll, pitch, yaw \cr
-#' Option 6 : speed, heading
+#' Option 6 : speed, heading \cr
 #' Option 7 : magnetometer x, y, z \cr
 #' Option 8 : barometer relative altitude, pressure \cr
 #' @param sync_time this arguments will be used when the recorded data has different time line with video.

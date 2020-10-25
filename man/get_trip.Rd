@@ -17,7 +17,7 @@ Option 2 : accel xyz \cr
 Option 3 : linacc xyz \cr
 Option 4 : gyro xyz \cr
 Option 5 : roll, pitch, yaw \cr
-Option 6 : speed, heading
+Option 6 : speed, heading \cr
 Option 7 : magnetometer x, y, z \cr
 Option 8 : barometer relative altitude, pressure \cr}
 

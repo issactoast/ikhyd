@@ -7,7 +7,7 @@
 draw_vaHeatmap(telematics_data, drawRange = c(0, 80))
 }
 \arguments{
-\item{telematics_data}{telematics data with a_lon, a_lat coloums}
+\item{telematics_data}{telematics data with a_lon, a_lat and speed coloums}
 
 \item{drawRange}{vector for drawing range of heat map}
 }

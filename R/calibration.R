@@ -46,7 +46,8 @@ calibrate_telematics <- function(file_path, sync_time = NULL){
 
     data.frame(time = acc_data$time,
                a_lon = low_pass(acc_data$lon_acc, 0.2),
-               a_lat = low_pass(acc_data$lat_acc, 0.2))
+               a_lat = low_pass(acc_data$lat_acc, 0.2),
+               speed = acc_data$speed)
 }
 
 if(getRversion() >= "2.15.1") {

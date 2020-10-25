@@ -4,12 +4,14 @@
 \alias{get_tripmap2}
 \title{get trip map without google account}
 \usage{
-get_tripmap2(time_insec, gps_data, zoom_scale = 20)
+get_tripmap2(time_insec, gps_data, api, zoom_scale = 20)
 }
 \arguments{
 \item{time_insec}{time}
 
 \item{gps_data}{GPS data}
+
+\item{api}{google map api}
 
 \item{zoom_scale}{zoom scale}
 }

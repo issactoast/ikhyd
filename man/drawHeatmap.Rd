@@ -7,7 +7,7 @@
 drawHeatmap(telematics_data, drawRange = c(4, 4), speedbucket = NULL)
 }
 \arguments{
-\item{telematics_data}{telematics data with a_lon, a_lat coloums}
+\item{telematics_data}{telematics data with time, a_lon, a_lat, and speed coloums}
 
 \item{drawRange}{vector for drawing range of heat map}
 

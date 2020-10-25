@@ -17,6 +17,10 @@ Imports:
     lubridate,
     ggplot2,
     ggmap,
-    RColorBrewer
+    gganimate,
+    RColorBrewer,
+    dlm
 Suggests: tidyverse
 RoxygenNote: 7.1.1
+Depends: 
+    R (>= 2.10)

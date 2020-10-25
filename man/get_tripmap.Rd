@@ -4,7 +4,7 @@
 \alias{get_tripmap}
 \title{get trip map from google map}
 \usage{
-get_tripmap(start_t, end_t, gps_data)
+get_tripmap(start_t, end_t, gps_data, api)
 }
 \arguments{
 \item{start_t}{starting time}
@@ -12,6 +12,8 @@ get_tripmap(start_t, end_t, gps_data)
 \item{end_t}{end time}
 
 \item{gps_data}{GPS data}
+
+\item{api}{google map api}
 }
 \value{
 ggmap object

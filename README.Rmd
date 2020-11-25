@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 # I Know How You Drive (ikhyd)
 
 <!-- badges: start -->
+[![Build Status](https://travis-ci.com/issactoast/ikhyd.svg?branch=master)](https://travis-ci.com/issactoast/ikhyd)
 <!-- badges: end -->
 
 R package `ikhyd` is designed to make the driving behavior analysis using telematics data easier.

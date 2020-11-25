@@ -256,6 +256,8 @@ plot_acc_compare(plot_data,
 
 # Heatmap visualization
 
+Here is some example of visualization of telematics data; v-a heatmap suggested by Wuthrich (2017) and [Lee and Shyamal (2019)](https://www.researchgate.net/publication/334749450_I_KNOW_HOW_YOU_DRIVE_DRIVING_STYLE_PROFILE_VIA_SMARTPHONE) the Lon-Lat plot suggested by The following code generates the v-a heatmap of the telematics data 
+
 ```{r}
 # telematics file for driver 1 and 2
 driver1_path <- system.file("extdata", "driver1.csv", package = "ikhyd")
@@ -281,4 +283,8 @@ drawHeatmap(telematics_driver1)
 drawHeatmap(telematics_driver2)
 ```
 
+## License
 
+Provided under the terms of the [MIT License](https://github.com/posquit0/hugo-awesome-identity/blob/master/LICENSE).
+
+Copyright © 2019-2020, Issac Lee.

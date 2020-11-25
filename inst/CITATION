@@ -3,7 +3,6 @@ citHeader("To cite ikhyd in publications use:")
 citEntry(entry = "Manual",
   title        = "ikhyd: I Know How You Drive - Collection of R functions to make telematics analysis easier.",
   author       = personList(as.person("Issac Lee")),
-  journal      = "Journal of Statistical Software",
   year         = "2020",
   note         = "R package version 0.1.0",
   url          = "https://github.com/issactoast/ikhyd",

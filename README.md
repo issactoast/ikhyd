@@ -5,20 +5,12 @@
 
 <!-- badges: start -->
 
+[![Build
+Status](https://travis-ci.com/issactoast/ikhyd.svg?branch=master)](https://travis-ci.com/issactoast/ikhyd)
 <!-- badges: end -->
 
-The goal of ikhyd is to make the analysis process of telematics data
-easier.
-
-## Installation
-
-You can install the development version from
-[GitHub](https://github.com/) with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("issactoast/ikhyd")
-```
+R package `ikhyd` is designed to make the driving behavior analysis
+using telematics data easier.
 
 # Prerequisite
 
@@ -36,7 +28,12 @@ After the installation, load package as follows:
 
 ``` r
 library(ikhyd)
-library(magrittr)
+#> To cite this package use citation('ikhyd') 
+#> 
+#>  Text citation: 
+#> 
+#>  Issac Lee (2020). ikhyd : I Know How You Drive - Collection of R functions to make telematics analysis easier.
+#>  R package version 0.1.0. URL https://github.com/issactoast/ikhyd
 ```
 
 ## Google API
@@ -115,7 +112,7 @@ load_telematic_data
 #>         return(result)
 #>     }
 #> }
-#> <bytecode: 0x0000000015e82588>
+#> <bytecode: 0x0000000014f37e10>
 #> <environment: namespace:ikhyd>
 ```
 
@@ -431,8 +428,10 @@ Comparion of Acceleration: Kalman smooth base(red) vs. OBD(black)
 # Heatmap visualization
 
 Here is some example of visualization of telematics data; v-a heatmap
-suggested by Wuthrich (2017) and the Lon-Lat plot suggested by The
-following code generates the v-a heatmap of the telematics data
+suggested by Wuthrich (2017) and [Lee and Shyamal
+(2019)](https://www.researchgate.net/publication/334749450_I_KNOW_HOW_YOU_DRIVE_DRIVING_STYLE_PROFILE_VIA_SMARTPHONE)
+the Lon-Lat plot suggested by The following code generates the v-a
+heatmap of the telematics data
 
 ``` r
 # telematics file for driver 1 and 2
@@ -481,3 +480,10 @@ Reproduce Lon-Lat plot result for drivers; 1 and 2
 </p>
 
 </div>
+
+## License
+
+Provided under the terms of the [MIT
+License](https://github.com/posquit0/hugo-awesome-identity/blob/master/LICENSE).
+
+Copyright © 2019-2020, Issac Lee.

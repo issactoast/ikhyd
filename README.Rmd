@@ -17,16 +17,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of ikhyd is to make the analysis process of telematics data easier.
-
-## Installation
-
-You can install the development version from [GitHub](https://github.com/) with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("issactoast/ikhyd")
-```
+R package `ikhyd` is designed to make the driving behavior analysis using telematics data easier.
 
 # Prerequisite
 
@@ -43,7 +34,6 @@ After the installation, load package as follows:
 
 ```{r}
 library(ikhyd)
-library(magrittr)
 ```
 
 ## Google API

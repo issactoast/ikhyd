@@ -19,7 +19,8 @@ Imports:
     ggmap,
     gganimate,
     RColorBrewer,
-    dlm
+    dlm,
+    crayon
 Suggests: tidyverse
 RoxygenNote: 7.1.1
 Depends: 

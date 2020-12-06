@@ -237,7 +237,8 @@ acc_from_obd <- function(obd_speed){
     # dv in m/s unit
     dv <- utils::tail(obd_speed$speed * 0.44704, -1) - utils::head(obd_speed$speed * 0.44704, -1)
 
-    obd_speed$dv_dt <- c(0, dv / dt)
+    acc <- c(0, dv / dt)
+    obd_speed$dv_dt <- c(tail(acc, -25), rep(0, 25))
     obd_speed
 }
 

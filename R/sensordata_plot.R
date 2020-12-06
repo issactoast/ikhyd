@@ -34,15 +34,16 @@ plot_acc <- function(data, rate = 1, tripname = "a trip", ...){
 #' @name plot_acc
 #' @param data speed information dataframe (obd_speed can be added)
 #' @param tripname name of the trip
+#' @param showobd show obd speed info.
 #' @param ... arguments supported by base plot
 #' @return plot of speed information
 #' @export
-plot_speed <- function(data, tripname = "a trip", ...){
+plot_speed <- function(data, tripname = "a trip", showobd = TRUE,...){
     plot(data$time, data$speed, type = "l",
          main = paste("Speed information", tripname) ,
          xlab = "Time (sec.)",
          ylab = "Speed (mph)", ...)
-    if ("obd_speed" %in% names(data)) {
+    if ("obd_speed" %in% names(data) & obd == TRUE) {
         graphics::points(data$time, data$obd_speed, type = "l", lty = "dashed")
     }
     graphics::abline(h = 0)

@@ -7,7 +7,7 @@
 \usage{
 plot_acc(data, rate = 1, tripname = "a trip", ...)
 
-plot_speed(data, tripname = "a trip", ...)
+plot_speed(data, tripname = "a trip", showobd = TRUE, ...)
 }
 \arguments{
 \item{data}{speed information dataframe (obd_speed can be added)}
@@ -17,6 +17,8 @@ plot_speed(data, tripname = "a trip", ...)
 \item{tripname}{name of the trip}
 
 \item{...}{arguments supported by base plot}
+
+\item{showobd}{show obd speed info.}
 }
 \value{
 plot of three axes accelerometer data

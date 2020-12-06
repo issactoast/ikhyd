@@ -39,7 +39,7 @@ plot_acc <- function(data, rate = 1, tripname = "a trip", ...){
 #' @export
 plot_speed <- function(data, tripname = "a trip", ...){
     plot(data$time, data$speed, type = "l",
-         main = paste("Speed information of", tripname) ,
+         main = paste("Speed information", tripname) ,
          xlab = "Time (sec.)",
          ylab = "Speed (mph)", ...)
     if ("obd_speed" %in% names(data)) {

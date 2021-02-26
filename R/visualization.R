@@ -195,11 +195,12 @@ drawHeatmap <- function(telematics_data,
 #'
 #' @name draw_vaHeatmap
 #' @param telematics_data telematics data with a_lon, a_lat and speed coloums
-#' @param drawRange vector for drawing range of heat map
+#' @param drawRange vector for drawing speed range of heat map
+#' @param alim vector for drawing acceleration range of heat map
 #' @return telematics heatmap drawn by ggplot
 #' @export
 draw_vaHeatmap <- function(telematics_data,
-                        drawRange= c(0, 80)){
+                        drawRange = c(0, 80), alim = 4){
 
     # Color housekeeping
     rf <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(11,'Spectral')))
@@ -215,7 +216,7 @@ draw_vaHeatmap <- function(telematics_data,
     p <- ggplot2::ggplot(data = heatmap_data,
                          ggplot2::aes(x = speed, y = a_lon)) +
         ggplot2::xlim(drawRange[1], drawRange[2]) +
-        ggplot2::ylim(-4, 4) +
+        ggplot2::ylim(-alim, alim) +
         # Add estimated density
         ggplot2::geom_point(fill = "lightgray",
                             size = 0.5,
@@ -266,7 +267,8 @@ telematics_data_fromGPS <- function(gps_data, speed_data){
     data.frame(time = my_data$time,
                a_lon = my_data$accel,
                a_lat = my_data$latacc,
-               omega = c(0, omega))
+               omega = c(0, omega),
+               speed = my_data$speed)
 }
 
 

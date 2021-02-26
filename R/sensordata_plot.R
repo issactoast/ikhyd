@@ -43,7 +43,7 @@ plot_speed <- function(data, tripname = "a trip", showobd = TRUE,...){
          main = paste("Speed information", tripname) ,
          xlab = "Time (sec.)",
          ylab = "Speed (mph)", ...)
-    if ("obd_speed" %in% names(data) & obd == TRUE) {
+    if ("obd_speed" %in% names(data) & showobd == TRUE) {
         graphics::points(data$time, data$obd_speed, type = "l", lty = "dashed")
     }
     graphics::abline(h = 0)

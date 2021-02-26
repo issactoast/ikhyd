@@ -4,12 +4,14 @@
 \alias{draw_vaHeatmap}
 \title{Draw a v-a heatmap for telematics data}
 \usage{
-draw_vaHeatmap(telematics_data, drawRange = c(0, 80))
+draw_vaHeatmap(telematics_data, drawRange = c(0, 80), alim = 4)
 }
 \arguments{
 \item{telematics_data}{telematics data with a_lon, a_lat and speed coloums}
 
-\item{drawRange}{vector for drawing range of heat map}
+\item{drawRange}{vector for drawing speed range of heat map}
+
+\item{alim}{vector for drawing acceleration range of heat map}
 }
 \value{
 telematics heatmap drawn by ggplot

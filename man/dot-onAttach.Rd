@@ -6,6 +6,11 @@
 \usage{
 .onAttach(libname, pkgname)
 }
+\arguments{
+\item{libname}{libname}
+
+\item{pkgname}{pakagename}
+}
 \value{
 start up message
 }

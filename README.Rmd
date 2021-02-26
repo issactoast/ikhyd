@@ -42,7 +42,7 @@ library(ikhyd)
 To use the visualization functions, the google map aip key should be fed into the function as an argument. Google API can be obtained [the Google Maps Platform](https://cloud.google.com/maps-platform) by following the registration [instruction](https://developers.google.com/maps/documentation/geocoding/get-api-key). The google map API service will charge $2 per 1000 requests however, [\$200 deposite will be added to the account per month](https://cloud.google.com/maps-platform/pricing).  Thus, the personal usage is technically free but **you need to register the credit card to use the service**.
 
 ```{r echo=FALSE}
-your_google_api <- "AIzaSyCzLbAEmXBeFEdQuzHWCxb4Kvz6ErdZ2m4"
+your_google_api <- keyring::key_get("GOOGLEMAP_API")
 ```
 
 For example, `track_vis()` has the following structure:

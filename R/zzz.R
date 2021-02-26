@@ -1,8 +1,8 @@
 #' Cat citation message when the package is loading
 #'
-#' @name .onAttach
-#' @param libname
-#' @param pkgname
+#' @name .onAttach 
+#' @param libname libname
+#' @param pkgname pakagename
 #' @return start up message
 .onAttach <- function(libname, pkgname) {
     packageStartupMessage(
